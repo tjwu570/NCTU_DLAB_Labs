@@ -76,12 +76,7 @@ module midterm(
     
     reg [127:0] row_A = "ABCDEFGHIJKLMNOP";
     reg [127:0] row_B = "QRSTUVWXYZABCDEF";
-     
-     
-    //-----------------------------------
-    //shifting module
-    //-----------------------------------
-
+    reg mask = 0; // reg for flickering the cursor; 1 to let the cursor became a space, 0 to preserve the original data.
 
     LCD_module lcd0(
         .clk(clk),
@@ -95,18 +90,18 @@ module midterm(
     );
  
     // Upon are given in the sample code
- 
+    always @(posedge clk) begin 
+    end 
 
     always @(posedge clk) begin
         if (~reset_n) begin
             launched <= 0;
-            row_A <= "ABCDEFGHIJKLMNOP";
-            row_B <= "QRSTUVWXYZABCDEF";
+            row_A <= "Press any button";
+            row_B <= "to show letters ";
         end
  
         else if (launched) begin
-
-
+            
             if (btn_pressed_0) launched <= 0;
             if (btn_pressed_1) launched <= 0;
             if (btn_pressed_2) launched <= 0;
@@ -120,11 +115,6 @@ module midterm(
                 for(idx = 0; idx<16; idx = idx+1 ) begin 
                     if (row_A[idx*8 +: 8] >= "Z") row_A[idx*8 +: 8] <= "A"; 
                     else row_A[idx*8 +: 8] <= row_A[idx*8 +: 8] + 1;
-                end
-
-                for(idx = 0; idx<16; idx = idx+1 ) begin 
-                    if (row_B[idx*8 +: 8] <= "A") row_B[idx*8 +: 8] <= "Z"; 
-                    else row_B[idx*8 +: 8] <= row_B[idx*8 +: 8] - 1;
                 end
             end
         end
