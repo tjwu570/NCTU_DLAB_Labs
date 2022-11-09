@@ -21,9 +21,6 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-
-
-//input and output
 module lab6(
   input  clk,
   input  reset_n,
@@ -33,36 +30,40 @@ module lab6(
   output uart_tx
 );
 
-//the states
-localparam [1:0] S_MAIN_INIT = 0, S_MAIN_PROMPT = 1,
-                 S_MAIN_READ_NUM = 2, S_MAIN_REPLY = 3;
+localparam [2:0] S_MAIN_INIT = 0, S_MAIN_PROMPT = 1,
+                 S_MAIN_READ_NUM = 2, S_MAIN_PROMPT2 = 3,
+                 S_MAIN_READ_NUM2 = 4, S_MAIN_REPLY = 5;
 localparam [1:0] S_UART_IDLE = 0, S_UART_WAIT = 1,
                  S_UART_SEND = 2, S_UART_INCR = 3;
 localparam INIT_DELAY = 100_000; // 1 msec @ 100 MHz
 localparam PROMPT_STR = 0;  // starting index of the prompt message
-localparam PROMPT_LEN = 27; // length of the prompt message
-localparam REPLY_STR  = 27; // starting index of the hello message
-localparam REPLY_LEN  = 38; // length of the hello message
-localparam MEM_SIZE   = PROMPT_LEN+REPLY_LEN;
+localparam PROMPT_LEN = 35; // length of the prompt message
+localparam PROMPT_STR2 = 35;  // starting index of the prompt message
+localparam PROMPT_LEN2 = 36; // length of the prompt message
+localparam REPLY_STR  = 71; // starting index of the hello message
+localparam REPLY_LEN  = 37; // length of the hello message
+localparam MEM_SIZE   = PROMPT_LEN+PROMPT_LEN2+REPLY_LEN;
 
 // declare system variables
 wire enter_pressed;
 wire print_enable, print_done;
 reg [$clog2(MEM_SIZE):0] send_counter;
-reg [1:0] P, P_next;
+reg [2:0] P, P_next;
 reg [1:0] Q, Q_next;
 reg [$clog2(INIT_DELAY):0] init_counter;
 reg [7:0] data[0:MEM_SIZE-1];
-reg  [0:PROMPT_LEN*8-1] msg1 = { "\015\012Enter a decimal number: ", 8'h00 };
-reg  [0:REPLY_LEN*8-1]  msg2 = { "\015\012The number you typed was: 0x0000.\015\012", 8'h00 };
-reg  [15:0] num_reg;  // The key-in number register
+reg  [0:PROMPT_LEN*8-1] msg1 = { "\015\012Enter the first decimal number: ", 8'h00 };
+reg  [0:PROMPT_LEN2*8-1] msg2 = { "\015\012Enter the second decimal number: ", 8'h00 };
+reg  [0:REPLY_LEN*8-1]  msg3 = { "\015\012The integer quotient is: 0x0000.\015\012", 8'h00 };
+reg  [15:0] A, B, num_reg;  // The key-in number register
 reg  [2:0]  key_cnt;  // The key strokes counter
+reg  [15:0] Ans = 16'd0, R = 16'd0;
 
 // declare UART signals
 wire transmit;
 wire received;
 wire [7:0] rx_byte;
-reg  [7:0] rx_temp;  // if received is true, rx_temp latches rx_byte for ONLY ONE CLOCK CYCLE!
+reg  [7:0] rx_temp;  // if recevied is true, rx_temp latches rx_byte for ONLY ONE CLOCK CYCLE!
 wire [7:0] tx_byte;
 wire [7:0] echo_key; // keystrokes to be echoed to the terminal
 wire is_num_key;
@@ -89,17 +90,29 @@ uart uart(
 // System Verilog has an easier way to initialize an array,
 // but we are using Verilog 2001 :(
 //
-integer idx;
+integer idx, flag;
+
 always @(posedge clk) begin
   if (~reset_n) begin
     for (idx = 0; idx < PROMPT_LEN; idx = idx + 1) data[idx] = msg1[idx*8 +: 8];
-    for (idx = 0; idx < REPLY_LEN; idx = idx + 1) data[idx+PROMPT_LEN] = msg2[idx*8 +: 8];
+    for (idx = 0; idx < PROMPT_LEN2; idx = idx + 1) data[idx+PROMPT_LEN] = msg2[idx*8 +: 8];
+    for (idx = 0; idx < REPLY_LEN; idx = idx + 1) data[idx+PROMPT_LEN+PROMPT_LEN2] = msg3[idx*8 +: 8];
   end
   else if (P == S_MAIN_REPLY) begin
-    data[REPLY_STR+30] <= ((num_reg[15:12] > 9)? "7" : "0") + num_reg[15:12];
-    data[REPLY_STR+31] <= ((num_reg[11: 8] > 9)? "7" : "0") + num_reg[11: 8];
-    data[REPLY_STR+32] <= ((num_reg[ 7: 4] > 9)? "7" : "0") + num_reg[ 7: 4];
-    data[REPLY_STR+33] <= ((num_reg[ 3: 0] > 9)? "7" : "0") + num_reg[ 3: 0];
+    Ans = 0;
+    R = 0;
+    for (idx = 15; idx >= 0; idx = idx - 1) begin
+        R = R << 1;
+        R[0] = A[idx];
+        if (R >= B) begin
+            R = R - B;
+            Ans[idx] = 1;
+        end
+    end
+        data[REPLY_STR+29] <= ((Ans[15:12] > 9)? "7" : "0") + Ans[15:12];
+        data[REPLY_STR+30] <= ((Ans[11: 8] > 9)? "7" : "0") + Ans[11: 8];
+        data[REPLY_STR+31] <= ((Ans[ 7: 4] > 9)? "7" : "0") + Ans[ 7: 4];
+        data[REPLY_STR+32] <= ((Ans[ 3: 0] > 9)? "7" : "0") + Ans[ 3: 0];
   end
 end
 
@@ -107,8 +120,6 @@ end
 assign usr_led = usr_btn;
 assign enter_pressed = (rx_temp == 8'h0D); // don't use rx_byte here!
 
-
-// FSM: Finite State Machine
 // ------------------------------------------------------------------------
 // Main FSM that reads the UART input and triggers
 // the output of the string "Hello, World!".
@@ -126,8 +137,14 @@ always @(*) begin // FSM next-state logic
       if (print_done) P_next = S_MAIN_READ_NUM;
       else P_next = S_MAIN_PROMPT;
     S_MAIN_READ_NUM: // wait for <Enter> key.
-      if (enter_pressed) P_next = S_MAIN_REPLY;
+      if (enter_pressed) P_next = S_MAIN_PROMPT2;
       else P_next = S_MAIN_READ_NUM;
+    S_MAIN_PROMPT2: // Print the prompt message.
+      if (print_done) P_next = S_MAIN_READ_NUM2;
+      else P_next = S_MAIN_PROMPT2;
+    S_MAIN_READ_NUM2: // wait for <Enter> key.
+      if (enter_pressed) P_next = S_MAIN_REPLY;
+      else P_next = S_MAIN_READ_NUM2;
     S_MAIN_REPLY: // Print the hello message.
       if (print_done) P_next = S_MAIN_INIT;
       else P_next = S_MAIN_REPLY;
@@ -135,8 +152,8 @@ always @(*) begin // FSM next-state logic
 end
 
 // FSM output logics: print string control signals.
-assign print_enable = (P != S_MAIN_PROMPT && P_next == S_MAIN_PROMPT) ||
-                  (P == S_MAIN_READ_NUM && P_next == S_MAIN_REPLY);
+assign print_enable = (P != S_MAIN_PROMPT && P_next == S_MAIN_PROMPT) || (P != S_MAIN_PROMPT2 && P_next == S_MAIN_PROMPT2) || 
+                  (P == S_MAIN_REPLY && P_next == S_MAIN_REPLY);
 assign print_done = (tx_byte == 8'h0);
 
 // Initialization counter.
@@ -173,17 +190,18 @@ end
 
 // FSM output logics: UART transmission control signals
 assign transmit = (Q_next == S_UART_WAIT ||
-                  (P == S_MAIN_READ_NUM && received) ||
+                  (P == S_MAIN_READ_NUM && received) ||  (P == S_MAIN_READ_NUM2 && received) ||
                    print_enable);
 assign is_num_key = (rx_byte > 8'h2F) && (rx_byte < 8'h3A) && (key_cnt < 5);
 assign echo_key = (is_num_key || rx_byte == 8'h0D)? rx_byte : 0;
-assign tx_byte  = ((P == S_MAIN_READ_NUM) && received)? echo_key : data[send_counter];
+assign tx_byte  = (((P == S_MAIN_READ_NUM) && received) || ((P == S_MAIN_READ_NUM2) && received)) ? echo_key : data[send_counter];
 
 // UART send_counter control circuit
 always @(posedge clk) begin
   case (P_next)
     S_MAIN_INIT: send_counter <= PROMPT_STR;
-    S_MAIN_READ_NUM: send_counter <= REPLY_STR;
+    S_MAIN_READ_NUM: send_counter <= PROMPT_STR2;
+    S_MAIN_READ_NUM2: send_counter <= REPLY_STR;
     default: send_counter <= send_counter + (Q_next == S_UART_INCR);
   endcase
 end
@@ -194,16 +212,24 @@ end
 // UART input logic
 // Decimal number input will be saved in num1 or num2.
 always @(posedge clk) begin
-  if (~reset_n || (P == S_MAIN_INIT || P == S_MAIN_PROMPT)) key_cnt <= 0;
+  if (~reset_n || (P == S_MAIN_INIT || P == S_MAIN_PROMPT || P == S_MAIN_PROMPT2)) key_cnt <= 0;//read number
   else if (received && is_num_key) key_cnt <= key_cnt + 1;
 end
 
 always @(posedge clk)begin
-  if (~reset_n) num_reg <= 0;
-  else if (P == S_MAIN_INIT || P == S_MAIN_PROMPT) num_reg <= 0;
+  if (~reset_n) begin 
+    num_reg = 0;
+  end
+  else if (P == S_MAIN_INIT || P == S_MAIN_PROMPT || P == S_MAIN_PROMPT2) begin 
+   //transmit decima
+    num_reg <= 0;
+  end
   else if (received && is_num_key) num_reg <= (num_reg * 10) + (rx_byte - 48);
 end
-
+always @(posedge clk) begin
+    if(P == S_MAIN_READ_NUM && P_next == S_MAIN_PROMPT2) A = num_reg;
+    else if(P == S_MAIN_READ_NUM2 && P_next == S_MAIN_REPLY) B = num_reg;
+end
 // The following logic stores the UART input in a temporary buffer.
 // The input character will stay in the buffer for one clock cycle.
 always @(posedge clk) begin
