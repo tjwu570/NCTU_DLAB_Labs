@@ -122,11 +122,12 @@ reg [$clog2(MEM_SIZE):0] send_counter;
 reg [$clog2(INIT_DELAY):0] init_counter;
 reg [0:REPLY_LEN*8 - 1] answer = { "\015\012The matrix multiplication result is: \015\012[ 00000, 00000, 00000, 00000 ]\015\012[ 00000, 00000, 00000, 00000 ]\015\012[ 00000, 00000, 00000, 00000 ]\015\012[ 00000, 00000, 00000, 00000 ]", 8'h00 };
 reg [7:0] data[0:MEM_SIZE-1];
-wire read_done;
+wire reading;
+wire calculating;
 
 reg [1:0] c_cnt = 0; // 
 reg [4:0] r_cnt = 0;
-assign calculation_done = (c_cnt < 3);
+assign calculating = (c_cnt < 3);
 reg [7:0]  A [0:15];
 reg [7:0]  B [0:15];
 reg [17:0] C [0:15];
@@ -161,9 +162,7 @@ uart uart(
 // but we are using Verilog 2001 :(
 //
 
-assign read_done = (user_addr < 33);   
-// assign read_done = (user_addr - 2 < 31);   
-// assign read_done = ((user_addr - 2) < 31);   
+assign reading = (user_addr < 33);    
 integer idx, r_idx;
 
 always @(posedge clk) begin
@@ -224,11 +223,11 @@ always @(*) begin // FSM next-state logic
       if (btn_pressed[1]) R_next = S_PRINT_READ;
       else R_next = S_PRINT_press;
     S_PRINT_READ:
-      if (read_done) R_next = S_PRINT_READ; // not done
+      if (reading) R_next = S_PRINT_READ; // not done
       else R_next = S_PRINT_CALCULATION;   
       // else R_next = S_PRINT_PROMPT;   
     S_PRINT_CALCULATION:
-      if (calculation_done) R_next = S_PRINT_CALCULATION;
+      if (calculating) R_next = S_PRINT_CALCULATION;
       else R_next = S_PRINT_PROMPT;  
     S_PRINT_PROMPT: // Print the prompt message.
       if (print_done) R_next = S_PRINT_INIT;
