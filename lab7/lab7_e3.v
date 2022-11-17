@@ -41,7 +41,7 @@ localparam [1:0] S_MAIN_ADDR = 3'b000, S_MAIN_READ = 3'b001,
 // declare system variables
 wire [1:0]  btn_level, btn_pressed;
 reg  [1:0]  prev_btn_level;
-reg  [1:0]  P, P_next;
+reg  [1:0]  P, P_next; // State of the main FSM
 reg  [11:0] user_addr;
 reg  [7:0]  user_data;
 

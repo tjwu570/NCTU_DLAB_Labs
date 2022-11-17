@@ -28,11 +28,11 @@ module lab7(
   input  [3:0] usr_btn,
   output [3:0] usr_led,
 
-  // 1602 LCD Module Interface
-  output LCD_RS,
-  output LCD_RW,
-  output LCD_E,
-  output [3:0] LCD_D,
+  // // 1602 LCD Module Interface
+  // output LCD_RS,
+  // output LCD_RW,
+  // output LCD_E,
+  // output [3:0] LCD_D,
 
   // UART interface
   input  uart_rx,
@@ -53,16 +53,16 @@ wire [7:0]  data_out;
 wire        sram_we, sram_en;
 
 
-LCD_module lcd0( 
-  .clk(clk),
-  .reset(~reset_n),
-  .row_A(row_A),
-  .row_B(row_B),
-  .LCD_E(LCD_E),
-  .LCD_RS(LCD_RS),
-  .LCD_RW(LCD_RW),
-  .LCD_D(LCD_D)
-);
+// LCD_module lcd0( 
+//   .clk(clk),
+//   .reset(~reset_n),
+//   .row_A(row_A),
+//   .row_B(row_B),
+//   .LCD_E(LCD_E),
+//   .LCD_RS(LCD_RS),
+//   .LCD_RW(LCD_RW),
+//   .LCD_D(LCD_D)
+// );
   
 debounce btn_db0(
   .clk(clk),
@@ -120,11 +120,11 @@ end
 wire print_enable, print_done;
 reg [$clog2(MEM_SIZE):0] send_counter;
 reg [$clog2(INIT_DELAY):0] init_counter;
-reg [0:REPLY_LEN*8 - 1] answer = { "\015\012The matrix multiplication result is: \015\012[ 11CE9, 18749, 0EE26, 16F64 ]\015\012[ 0ED5B, 1091D, 04768, 06376 ]\015\012[ 167B9, 1BF8A, 0E496, 1504F ]\015\012[ 09901, 0F404, 08F23, 0C4A5 ]", 8'h00 };
+reg [0:REPLY_LEN*8 - 1] answer = { "\015\012The matrix multiplication result is: \015\012[ 00000, 00000, 00000, 00000 ]\015\012[ 00000, 00000, 00000, 00000 ]\015\012[ 00000, 00000, 00000, 00000 ]\015\012[ 00000, 00000, 00000, 00000 ]", 8'h00 };
 reg [7:0] data[0:MEM_SIZE-1];
 wire read_done;
 
-reg [1:0] c_cnt = 0;
+reg [1:0] c_cnt = 0; // 
 reg [4:0] r_cnt = 0;
 assign calculation_done = (c_cnt < 3);
 reg [7:0]  A [0:15];
@@ -184,14 +184,13 @@ always @(posedge clk) begin
 	 user_addr <= user_addr + 1; 
   end
   else if (R == S_PRINT_CALCULATION) begin
-
 		C[c_cnt * 4 + 0] <=  A[c_cnt + 4 * 0] * B[0] + A[c_cnt + 4 * 1] * B[1] + A[c_cnt + 4 * 2] * B[2] + A[c_cnt + 4 * 3] * B[3];
 		C[c_cnt * 4 + 1] <=  A[c_cnt + 4 * 0] * B[4] + A[c_cnt + 4 * 1] * B[5] + A[c_cnt + 4 * 2] * B[6] + A[c_cnt + 4 * 3] * B[7];
 		C[c_cnt * 4 + 2] <=  A[c_cnt + 4 * 0] * B[8] + A[c_cnt + 4 * 1] * B[9] + A[c_cnt + 4 * 2] * B[10] + A[c_cnt + 4 * 3] * B[11];
 		C[c_cnt * 4 + 3] <=  A[c_cnt + 4 * 0] * B[12] + A[c_cnt + 4 * 1] * B[13] + A[c_cnt + 4 * 2] * B[14] + A[c_cnt + 4 * 3] * B[15];
-
+    // Calculate the answer in row-major order
+    // Use four periods to calculate 
 		c_cnt <= c_cnt + 1;
-
   end
   else if (R == S_PRINT_PROMPT) begin
 
@@ -203,7 +202,7 @@ always @(posedge clk) begin
 		
 		r_cnt <= r_cnt + 1;
 		if(r_cnt % 4 != 3) r_idx <= r_idx + 7;
-		else r_idx <= r_idx + 11;
+		else r_idx <= r_idx + 11; //the length between two data in the prompt message, length accross two rows are " ]\015\012[ "
       
   end
 end
