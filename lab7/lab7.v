@@ -1,48 +1,19 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: Dept. of Computer Science, National Chiao Tung University
-// Engineer: Chun-Jen Tsai
-// 
-// Create Date: 2018/11/01 11:16:50
-// Design Name: 
-// Module Name: lab6
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: This is a sample circuit to show you how to initialize an SRAM
-//              with a pre-defined data file. Hit BTN0/BTN1 let you browse
-//              through the data.
-// 
-// Dependencies: LCD_module, debounce
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 module lab7(
   // General system I/O ports
   input  clk,
   input  reset_n,
   input  [3:0] usr_btn,
   output [3:0] usr_led,
-
-  // // 1602 LCD Module Interface
-  // output LCD_RS,
-  // output LCD_RW,
-  // output LCD_E,
-  // output [3:0] LCD_D,
-
-  // UART interface
+  // UART
   input  uart_rx,
   output uart_tx
 );
 
 
 // declare system variables
-wire [1:0]  btn_level, btn_pressed;
-reg  [1:0]  prev_btn_level;
+wire  btn_level, btn_pressed;
+reg   prev_btn_level;
 reg  [11:0] user_addr;
 reg  [7:0]  user_data;
 
@@ -52,36 +23,16 @@ wire [7:0]  data_in;
 wire [7:0]  data_out;
 wire        sram_we, sram_en;
 
-
-// LCD_module lcd0( 
-//   .clk(clk),
-//   .reset(~reset_n),
-//   .row_A(row_A),
-//   .row_B(row_B),
-//   .LCD_E(LCD_E),
-//   .LCD_RS(LCD_RS),
-//   .LCD_RW(LCD_RW),
-//   .LCD_D(LCD_D)
-// );
-  
-debounce btn_db0(
-  .clk(clk),
-  .btn_input(usr_btn[0]),
-  .btn_output(btn_level[0])
-);
-
 debounce btn_db1(
   .clk(clk),
-  .btn_input(usr_btn[1]),
-  .btn_output(btn_level[1])
+  .btn_input(usr_btn),
+  .btn_output(btn_level)
 );
 
-//
 // Enable one cycle of btn_pressed per each button hit
-//
 always @(posedge clk) begin
   if (~reset_n)
-    prev_btn_level <= 2'b00;
+    prev_btn_level <= 1'b0;
   else
     prev_btn_level <= btn_level;
 end
@@ -125,7 +76,7 @@ reg [7:0] data[0:MEM_SIZE-1];
 wire reading;
 wire calculating;
 
-reg [1:0] c_cnt = 0; // 
+reg [1:0] c_cnt = 0; 
 reg [4:0] r_cnt = 0;
 assign calculating = (c_cnt < 3);
 reg [7:0]  A [0:15];
@@ -220,7 +171,7 @@ always @(*) begin // FSM next-state logic
       if (init_counter < INIT_DELAY) R_next = S_PRINT_INIT;
       else R_next = S_PRINT_press;
     S_PRINT_press:
-      if (btn_pressed[1]) R_next = S_PRINT_READ;
+      if (btn_pressed) R_next = S_PRINT_READ;
       else R_next = S_PRINT_press;
     S_PRINT_READ:
       if (reading) R_next = S_PRINT_READ; // not done
