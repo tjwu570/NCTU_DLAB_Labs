@@ -120,6 +120,7 @@ end
 assign usr_led = usr_btn;
 assign enter_pressed = (rx_temp == 8'h0D); // don't use rx_byte here!
  
+ 
 // ------------------------------------------------------------------------
 // Main FSM that reads the UART input and triggers
 // the output of the string "Hello, World!".
@@ -164,6 +165,7 @@ end
 // End of the FSM of the print string controller
 // ------------------------------------------------------------------------
  
+
 // ------------------------------------------------------------------------
 // FSM of the controller that sends a string to the UART.
 always @(posedge clk) begin
@@ -208,6 +210,8 @@ end
 // End of the FSM of the print string controller
 // ------------------------------------------------------------------------
  
+
+
 // ------------------------------------------------------------------------
 // UART input logic
 // Decimal number input will be saved in num1 or num2.
