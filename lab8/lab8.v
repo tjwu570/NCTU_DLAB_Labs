@@ -1,34 +1,4 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: Dept. of Computer Science, National Chiao Tung University
-// Engineer: Chun-Jen Tsai
-// 
-// Create Date: 2017/05/08 15:29:41
-// Design Name: 
-// Module Name: lab6
-// Project Name: 
-// Target Devices: 
-// Tool Versions:
-// Description: The sample top module of lab 6: sd card reader. The behavior of
-//              this module is as follows
-//              1. When the SD card is initialized, display a message on the LCD.
-//                 If the initialization fails, an error message will be shown.
-//              2. The user can then press usr_btn[2] to trigger the sd card
-//                 controller to read the super block of the sd card (located at
-//                 block # 8192) into the SRAM memory.
-//              3. During SD card reading time, the four LED lights will be turned on.
-//                 They will be turned off when the reading is done.
-//              4. The LCD will then displayer the sector just been read, and the
-//                 first byte of the sector.
-//              5. Everytime you press usr_btn[2], the next byte will be displayed.
-// 
-// Dependencies: clk_divider, LCD_module, debounce, sd_card
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
 module lab8(
   // General system I/O ports
@@ -54,11 +24,12 @@ localparam [2:0] S_MAIN_INIT = 3'b000, S_MAIN_IDLE = 3'b001,
                  S_MAIN_WAIT = 3'b010, S_MAIN_READ = 3'b011,
                  S_MAIN_DONE = 3'b100, S_MAIN_SHOW = 3'b101;
                  
-localparam [3:0] S_MAIN_D = 4'b0001, S_MAIN_L = 4'b0010,
-                 S_MAIN_A = 4'b0011, S_MAIN_B = 4'b0100,
-                 S_MAIN_under = 4'b0101, S_MAIN_T_E = 4'b0110,
-                 S_MAIN_A_N = 4'b0111, S_MAIN_G_D = 4'b1000, S_MAIN_O = 4'b0000;
-
+localparam [3:0] 
+  S_MAIN_O = 4'b0000,
+  S_MAIN_D = 4'b0001, S_MAIN_L = 4'b0010,
+  S_MAIN_A = 4'b0011, S_MAIN_B = 4'b0100,
+  S_MAIN_under = 4'b0101, S_MAIN_T_E = 4'b0110,
+  S_MAIN_A_N = 4'b0111, S_MAIN_G_D = 4'b1000;
 
 // Declare system variables
 wire btn_level, btn_pressed;

@@ -27,7 +27,7 @@ module sd_card(
   input  clk,
   input  rst,
   input  rd_req,               // "rd_req <= 1" triggers the reading of a block.
-  input  [31:0] block_addr,    // The block number of the SD card to read.
+  input  [31:0] block_addr,    // The block number of the SD card to read. One block consists 512 Bytes, so it supports at most 2 TB
   output reg init_finished,    // SD card initialization is finished?
   output reg [7:0] dout,       // Output one byte of data in the block.
   output reg sd_valid          // The output byte in "dout" is ready
