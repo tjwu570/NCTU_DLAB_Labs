@@ -14,18 +14,17 @@
 #include <string.h>
 #include <stdint.h>
 #include <iostream>
- 
+
 // leftrotate function definition
 #define LEFTROTATE(x, c) (((x) << (c)) | ((x) >> (32 - (c))))
- 
+
 // Note: All variables are unsigned 32 bit and wrap modulo 2^32 when calculating
-// r specifies the per-round shift amounts 
+// r specifies the per-round shift amounts
 uint32_t r[] = {
-    7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
-    5,  9, 14, 20, 5,  9, 14, 20, 5,  9, 14, 20, 5,  9, 14, 20,
+    7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 
+    5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20,
     4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
-    6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21
-};
+    6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21};
 
 // Use binary integer part of the sines of integers (in radians) as constants
 // Initialize variables:
@@ -45,8 +44,7 @@ uint32_t k[] = {
     0xf4292244, 0x432aff97, 0xab9423a7, 0xfc93a039,
     0x655b59c3, 0x8f0ccc92, 0xffeff47d, 0x85845dd1,
     0x6fa87e4f, 0xfe2ce6e0, 0xa3014314, 0x4e0811a1,
-    0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391
-};
+    0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391};
 
 void md5(uint8_t *initial_msg, size_t initial_len, uint8_t *hash)
 {
@@ -60,7 +58,7 @@ void md5(uint8_t *initial_msg, size_t initial_len, uint8_t *hash)
     uint32_t h1 = 0xefcdab89;
     uint32_t h2 = 0x98badcfe;
     uint32_t h3 = 0x10325476;
- 
+
     // Notice: the input bytes are considered as bits strings,
     // where the first bit is the most significant bit of the byte.
 
@@ -73,19 +71,19 @@ void md5(uint8_t *initial_msg, size_t initial_len, uint8_t *hash)
     memset(msg, 0, sizeof(msg)); // initialize the MD5 message buffer to zeros
     memcpy(msg, initial_msg, initial_len);
 
-    // Pre-processing: appending a single bit of "1" to the message. 
+    // Pre-processing: appending a single bit of "1" to the message.
     msg[initial_len] = 128;
 
-    bits_len = initial_len*8;             // note, we append the length in bits
-    memcpy(msg + pad_len, &bits_len, 8);  // at the end of the buffer
+    bits_len = initial_len * 8;          // note, we append the length in bits
+    memcpy(msg + pad_len, &bits_len, 8); // at the end of the buffer
 
     // Process the message in successive 512-bit chunks:
     // for each 512-bit chunk of message:
     int offset;
-    for (offset = 0; offset < pad_len; offset += (512/8))
+    for (offset = 0; offset < pad_len; offset += (512 / 8))
     {
         // break chunk into sixteen 32-bit words w[j], 0 ≤ j ≤ 15
-        uint32_t *w = (uint32_t *) (msg + offset);
+        uint32_t *w = (uint32_t *)(msg + offset);
 
         // Initialize hash value for this chunk:
         uint32_t a = h0;
@@ -95,22 +93,29 @@ void md5(uint8_t *initial_msg, size_t initial_len, uint8_t *hash)
 
         // Main loop:
         uint32_t i;
-		for(i = 0; i < 64; i++)
+        for (i = 0; i < 64; i++)
         {
             uint32_t f, g;
 
-             if (i < 16) {
+            if (i < 16)
+            {
                 f = (b & c) | ((~b) & d);
                 g = i;
-            } else if (i < 32) {
+            }
+            else if (i < 32)
+            {
                 f = (d & b) | ((~d) & c);
-                g = (5*i + 1) % 16;
-            } else if (i < 48) {
+                g = (5 * i + 1) % 16;
+            }
+            else if (i < 48)
+            {
                 f = b ^ c ^ d;
-                g = (3*i + 5) % 16;          
-            } else {
+                g = (3 * i + 5) % 16;
+            }
+            else
+            {
                 f = c ^ (b | (~d));
-                g = (7*i) % 16;
+                g = (7 * i) % 16;
             }
 
             uint32_t temp = d;
@@ -128,14 +133,14 @@ void md5(uint8_t *initial_msg, size_t initial_len, uint8_t *hash)
     }
 
     // store the output hash
-    p = (uint8_t *) &h0;
-    hash[ 0] = p[0], hash[ 1] = p[1], hash[ 2] = p[2], hash [ 3] = p[3];
-    p = (uint8_t *) &h1;
-    hash[ 4] = p[0], hash[ 5] = p[1], hash[ 6] = p[2], hash [ 7] = p[3];
-    p = (uint8_t *) &h2;
-    hash[ 8] = p[0], hash[ 9] = p[1], hash[10] = p[2], hash [11] = p[3];
-    p = (uint8_t *) &h3;
-    hash[12] = p[0], hash[13] = p[1], hash[14] = p[2], hash [15] = p[3];
+    p = (uint8_t *)&h0;
+    hash[0] = p[0], hash[1] = p[1], hash[2] = p[2], hash[3] = p[3];
+    p = (uint8_t *)&h1;
+    hash[4] = p[0], hash[5] = p[1], hash[6] = p[2], hash[7] = p[3];
+    p = (uint8_t *)&h2;
+    hash[8] = p[0], hash[9] = p[1], hash[10] = p[2], hash[11] = p[3];
+    p = (uint8_t *)&h3;
+    hash[12] = p[0], hash[13] = p[1], hash[14] = p[2], hash[15] = p[3];
 }
 
 int main(int argc, char **argv)
@@ -143,7 +148,7 @@ int main(int argc, char **argv)
     size_t len;
     uint8_t hash[16];
 
-    len = (argc == 2)? strlen(argv[1]) : 0;
+    len = (argc == 2) ? strlen(argv[1]) : 0;
     if (argc != 2 || len != 8)
     {
         printf("\nUsage: %s 'string'\n", argv[0]);
@@ -151,14 +156,14 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    uint8_t* p = reinterpret_cast<uint8_t*>(argv[1]);
+    uint8_t *p = reinterpret_cast<uint8_t *>(argv[1]);
     md5(p, len, hash);
 
     // display the hash code of msg
     printf("\nThe hash code of %s is: ", argv[1]);
-    printf("%02x%02x%02x%02x", hash[ 0], hash[ 1], hash[ 2], hash[ 3]);
-    printf("%02x%02x%02x%02x", hash[ 4], hash[ 5], hash[ 6], hash[ 7]);
-    printf("%02x%02x%02x%02x", hash[ 8], hash[ 9], hash[10], hash[11]);
+    printf("%02x%02x%02x%02x", hash[0], hash[1], hash[2], hash[3]);
+    printf("%02x%02x%02x%02x", hash[4], hash[5], hash[6], hash[7]);
+    printf("%02x%02x%02x%02x", hash[8], hash[9], hash[10], hash[11]);
     printf("%02x%02x%02x%02x\n", hash[12], hash[13], hash[14], hash[15]);
 
     return 0;
