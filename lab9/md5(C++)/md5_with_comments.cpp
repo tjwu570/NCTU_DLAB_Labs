@@ -8,13 +8,10 @@
  *
  * Compile with: gcc -o md5 -O3 md5.c
  */
-
 #include <stdio.h>
 #include <stdlib.h>
-#include <string>
+#include <string.h>
 #include <stdint.h>
-#include <iostream>
-using namespace std;
  
 // leftrotate function definition
 #define LEFTROTATE(x, c) (((x) << (c)) | ((x) >> (32 - (c))))
@@ -141,35 +138,25 @@ void md5(uint8_t *initial_msg, size_t initial_len, uint8_t *hash)
 
 int main(int argc, char **argv)
 {
-    size_t len = 0;
+    size_t len;
     uint8_t hash[16];
-    uint8_t attempt[16];
 
-    string pwd = "11111111";
-    uint8_t* p = reinterpret_cast<uint8_t*>(&pwd);
-    //uint8_t p = 00000100;
-    md5(p, len, hash);
+    len = (argc == 2)? strlen(argv[1]) : 0;
+    if (argc != 2 || len != 8)
+    {
+        printf("\nUsage: %s 'string'\n", argv[0]);
+        printf("Note: the string length must be 8.\n");
+        return 1;
+    }
+
+    md5(argv[1], len, hash);
 
     // display the hash code of msg
-    printf("\nThe hash code of %s is: ", &pwd);
+    printf("\nThe hash code of %s is: ", argv[1]);
     printf("%02x%02x%02x%02x", hash[ 0], hash[ 1], hash[ 2], hash[ 3]);
     printf("%02x%02x%02x%02x", hash[ 4], hash[ 5], hash[ 6], hash[ 7]);
     printf("%02x%02x%02x%02x", hash[ 8], hash[ 9], hash[10], hash[11]);
     printf("%02x%02x%02x%02x\n", hash[12], hash[13], hash[14], hash[15]);
 
-
-    for(int i=0; i<100000000; i++)
-        uint8_t q = (uint8_t) i;
-        md5(&q, len, attempt);
-        if(
-            ((attempt[0]==hash[0] && attempt[1]==hash[1])&&
-             (attempt[2]==hash[2] && attempt[3]==hash[3]))&&
-            ((attempt[4]==hash[4] && attempt[5]==hash[5])&&
-             (attempt[6]==hash[6] && attempt[7]==hash[7]))
-        ){
-            std::cout << "\n" << i << "\n";
-            break;
-        }
-    }
     return 0;
 }
