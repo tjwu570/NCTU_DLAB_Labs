@@ -1,6 +1,6 @@
 module md5(
     input  clk,
-    input  reg [63:0]  att,
+    input  [63:0]  att,
     output reg [127:0] hash,
     output reg [63:0] current_att 
 );
@@ -57,11 +57,13 @@ always @(*) begin
  endcase
 end
 
+reg [63:0] in_att;
 always @(posedge clk) begin
     if (S==S_INIT) begin
         w[511:448] <= att[63:0];
         state <= 0;
         initialized <= 1;
+        in_att <= att;
     end
 
     else if (S==S_LOOP_1) begin
