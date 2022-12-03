@@ -70,6 +70,7 @@ end
 reg [10:0] waiter = 0 ;
 // Check md5 output
 always @(posedge clk) begin
+    ans_pwd <= ans0;
     if (P == S_MAIN_INIT) found <= 0;
     else begin 
         if (waiter<1000) waiter <= waiter +1;
