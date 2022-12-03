@@ -17,7 +17,8 @@ module lab9(
 reg [0 : 127] passwd_hash = 128'hE8CD0953ABDFDE433DFEC7FAA70DF7F6;
 reg found;
 reg  [63:0]  att  [0:2];
-reg [127:0]  hash0, hash1, hash2;
+wire [127:0]  hash0, hash1, hash2;
+reg [127:0] hash0_reg;
 wire [63:0]  ans0, ans1, ans2;
 reg  [63:0]  ans_pwd;
 
@@ -71,7 +72,11 @@ always @(posedge clk) begin
     if (P == S_MAIN_INIT) found <= 0;
     else begin 
         if (waiter < 1000) waiter <= waiter +1;
-        else begin found <= 1; ans_pwd <= ans0; end
+        else begin 
+            found <= 1; 
+            ans_pwd <= ans0; 
+            hash0_reg <= hash0;
+        end
     end
 end
 
@@ -110,10 +115,6 @@ always @(posedge clk) begin
     end
 end
 
-
-
-
-
  // LCD Display function.
  always @(posedge clk) begin
  if (P == S_MAIN_INIT) begin
@@ -124,7 +125,7 @@ end
     row_B <= "                ";
  end else if (P == S_MAIN_SHOW) begin
     row_A <= {"att:     ", ans_pwd};
-    row_B <= hash0;
+    row_B <= hash0_reg;
  end
  end
 

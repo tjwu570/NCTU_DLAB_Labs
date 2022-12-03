@@ -53,7 +53,7 @@ always @(*) begin
     S_ADD:
         S_next <= S_DONE;
     S_DONE:
-        S_next <= S_INC;
+        S_next <= S_DONE;
     default:
         S_next <= S_INIT;
  endcase
