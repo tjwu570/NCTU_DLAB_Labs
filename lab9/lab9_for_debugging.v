@@ -121,8 +121,9 @@ end
     row_A <= "Calculating.....";
     row_B <= "                ";
  end else if (P == S_MAIN_SHOW) begin
+    hash0_reg <= hash0;
     row_A <= {"Passwd: ", ans_pwd};
-    row_B <= {"Time: ", cnt[40 +: 56], " ms"};
+    row_B <= hash0_reg;
  end
  end
 
