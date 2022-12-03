@@ -17,10 +17,10 @@ module lab9(
 reg [0 : 127] passwd_hash = 128'hE8CD0953ABDFDE433DFEC7FAA70DF7F6;
 reg found;
 reg  [63:0]  att  [0:2];
-wire [127:0]  hash0, hash1, hash2;
-reg [127:0] hash0_reg = 0;
+wire [127:0] hash0, hash1, hash2;
 wire [63:0]  ans0, ans1, ans2;
 reg  [63:0]  ans_pwd;
+reg hash0_reg;
 
 wire btn_level, btn_pressed;
 reg  prev_btn_level;
@@ -43,7 +43,7 @@ LCD_module lcd0(
     .LCD_RW(LCD_RW), 
     .LCD_D(LCD_D));
 
-md5 m0(.clk(clk), .att(att[0]), .hash(hash0), .current_att(ans0));
+md5 m0(.clk(clk), .att("53589793"), .hash(hash0), .current_att(ans0));
 
 reg  [1:0] P, P_next;
 localparam [1:0] S_MAIN_INIT = 2'b00, S_MAIN_CALC = 2'b01, S_MAIN_SHOW = 2'b10;
@@ -59,36 +59,31 @@ always @(*) begin // FSM next-state logic
             if (btn_pressed) P_next <= S_MAIN_INIT;
             else P_next <= S_MAIN_SHOW;
         default:
-            P_next <= S_MAIN_CALC;
+            P_next <= S_MAIN_INIT;
     endcase
 end
 always @(posedge clk) begin
     if (~reset_n) P <= S_MAIN_INIT;
     else P <= P_next;
 end
+
+reg [10:0] counter = 0 ;
 // Check md5 output
-reg [10:0] waiter = 0;
 always @(posedge clk) begin
     if (P == S_MAIN_INIT) found <= 0;
     else begin 
-        if (waiter < 1000) waiter <= waiter +1;
-        else begin 
-            found <= 1; 
-            ans_pwd <= ans0; 
-            hash0_reg <= hash0;
-        end
+        if (waiter<1000) waiter <= waiter +1;
+        else begin found <= 1; ans_pwd <= ans0; end
     end
 end
 
 // Timer & set starter
-reg [95 : 0] cnt = "000000000000";
+reg [95 : 0] cnt = 0;
 always @(posedge clk) begin
     if (P == S_MAIN_INIT) begin
         cnt <= "000000000000";
-        att[0] <= "53589793";
     end
     else if (P == S_MAIN_CALC) begin
-        att[0] <= "53589793";
         if (cnt[ 0 +: 4] == 4'h9) begin cnt[ 0 +: 4] <= 4'h0;
         if (cnt[ 8 +: 4] == 4'h9) begin cnt[ 8 +: 4] <= 4'h0;
         if (cnt[16 +: 4] == 4'h9) begin cnt[16 +: 4] <= 4'h0;
@@ -125,8 +120,8 @@ end
     row_A <= "Calculating.....";
     row_B <= "                ";
  end else if (P == S_MAIN_SHOW) begin
-    row_A <= {"att:    ", ans_pwd};
-    row_B <= hash0_reg;
+    row_A <= {"Passwd: ", ans_pwd};
+    row_B <= {"Time: ", cnt[40 +: 56], " ms"};
  end
  end
 

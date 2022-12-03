@@ -43,8 +43,6 @@ always @(*) begin
     S_INIT:
         if (initialized) S_next = S_LOOP_1;
         else S_next <= S_INIT;
-    S_INC:
-        S_next <= S_LOOP_1;
     S_LOOP_1:
         S_next <= S_LOOP_2;
     S_LOOP_2:
@@ -59,39 +57,13 @@ always @(*) begin
  endcase
 end
 
-reg [4:0] waiter = 0;
 always @(posedge clk) begin
     if (S==S_INIT) begin
-        if (waiter<20) waiter <= waiter +1;
-        else begin
-            w[511:448] <= att[63:0];
-            state <= 0;
-            initialized <= 1;
-        end
+        w[511:448] <= att[63:0];
+        state <= 0;
+        initialized <= 1;
     end
-    else if (S==S_INC) begin
-        if (w[448 +: 4] == 4'h9) begin w[448 +: 4] <= 4'h0;
-        if (w[456 +: 4] == 4'h9) begin w[456 +: 4] <= 4'h0;
-        if (w[464 +: 4] == 4'h9) begin w[464 +: 4] <= 4'h0;
-        if (w[472 +: 4] == 4'h9) begin w[472 +: 4] <= 4'h0;
-        if (w[480 +: 4] == 4'h9) begin w[480 +: 4] <= 4'h0;
-        if (w[488 +: 4] == 4'h9) begin w[488 +: 4] <= 4'h0;
-        if (w[496 +: 4] == 4'h9) begin w[496 +: 4] <= 4'h0;
-        if (w[504 +: 4] == 4'h9) begin w[504 +: 4] <= 4'h0;
-        end else w[504 +: 4] <= w[504 +: 4] + 1;
-        end else w[496 +: 4] <= w[496 +: 4] + 1;
-        end else w[488 +: 4] <= w[488 +: 4] + 1;
-        end else w[480 +: 4] <= w[480 +: 4] + 1;
-        end else w[472 +: 4] <= w[472 +: 4] + 1;
-        end else w[464 +: 4] <= w[464 +: 4] + 1;
-        end else w[456 +: 4] <= w[456 +: 4] + 1;
-        end else w[448 +: 4] <= w[448 +: 4] + 1;
 
-        a <= 32'h67452301;
-        b <= 32'hefcdab89;
-        c <= 32'h98badcfe;
-        d <= 32'h10325476;
-    end
     else if (S==S_LOOP_1) begin
         if (i < 16) begin
             f <= (b & c) | ((~b) & d);
@@ -178,7 +150,6 @@ always @(posedge clk) begin
         if(i==61) b <= b + (((a + f + 32'hbd3af235 + w[g]) << 10) | ((a + f + 32'hbd3af235 + w[g]) >> (32 - 10)));
         if(i==62) b <= b + (((a + f + 32'h2ad7d2bb + w[g]) << 15) | ((a + f + 32'h2ad7d2bb + w[g]) >> (32 - 15)));
         if(i==63) b <= b + (((a + f + 32'heb86d391 + w[g]) << 21) | ((a + f + 32'heb86d391 + w[g]) >> (32 - 21)));
-
         i <= i + 1;
     end
     else if (S==S_ADD) begin
