@@ -30,6 +30,8 @@ debounce btn_db2(
   .btn_output(btn_level)
 );
 
+reg  [127:0] row_A;
+reg  [127:0] row_B;
 LCD_module lcd0(
     .clk(clk), 
     .reset(~reset_n), 
