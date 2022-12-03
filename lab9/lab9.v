@@ -119,11 +119,11 @@ end
  // LCD Display function.
  always @(posedge clk) begin
  if (P == S_MAIN_INIT) begin
-    row_A <= "Press BTN2 TO ";
+    row_A <= "Press BTN2 TO   ";
     row_B <= "start calcualte ";
  end else if (P == S_MAIN_CALC) begin
     row_A <= "Calculating.....";
-    row_B <= " ";
+    row_B <= "                ";
  end else if (P == S_MAIN_SHOW) begin
     row_A <= {"Passwd: ", ans_pwd};
     row_B <= {"Time: ", cnt[40 +: 56], " ms"};
