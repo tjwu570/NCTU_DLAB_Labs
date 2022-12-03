@@ -18,7 +18,7 @@ reg [0 : 127] passwd_hash = 128'hE8CD0953ABDFDE433DFEC7FAA70DF7F6;
 reg found;
 reg  [63:0]  att  [0:2];
 wire [127:0]  hash0, hash1, hash2;
-reg [127:0] hash0_reg;
+reg [127:0] hash0_reg = 0;
 wire [63:0]  ans0, ans1, ans2;
 reg  [63:0]  ans_pwd;
 
@@ -59,7 +59,7 @@ always @(*) begin // FSM next-state logic
             if (btn_pressed) P_next <= S_MAIN_INIT;
             else P_next <= S_MAIN_SHOW;
         default:
-            P_next <= S_MAIN_INIT;
+            P_next <= S_MAIN_CALC;
     endcase
 end
 always @(posedge clk) begin
@@ -81,13 +81,14 @@ always @(posedge clk) begin
 end
 
 // Timer & set starter
-reg [95 : 0] cnt = 0;
+reg [95 : 0] cnt = "000000000000";
 always @(posedge clk) begin
     if (P == S_MAIN_INIT) begin
         cnt <= "000000000000";
         att[0] <= "53589793";
     end
     else if (P == S_MAIN_CALC) begin
+        att[0] <= "53589793";
         if (cnt[ 0 +: 4] == 4'h9) begin cnt[ 0 +: 4] <= 4'h0;
         if (cnt[ 8 +: 4] == 4'h9) begin cnt[ 8 +: 4] <= 4'h0;
         if (cnt[16 +: 4] == 4'h9) begin cnt[16 +: 4] <= 4'h0;
@@ -124,7 +125,7 @@ end
     row_A <= "Calculating.....";
     row_B <= "                ";
  end else if (P == S_MAIN_SHOW) begin
-    row_A <= {"att:     ", ans_pwd};
+    row_A <= {"att:    ", ans_pwd};
     row_B <= hash0_reg;
  end
  end

@@ -59,11 +59,15 @@ always @(*) begin
  endcase
 end
 
+reg [4:0] waiter = 0;
 always @(posedge clk) begin
     if (S==S_INIT) begin
-        w[511:448] <= att[63:0];
-        state <= 0;
-        initialized <= 1;
+        if (waiter<20) waiter <= waiter +1;
+        else begin
+            w[511:448] <= att[63:0];
+            state <= 0;
+            initialized <= 1;
+        end
     end
     else if (S==S_INC) begin
         if (w[448 +: 4] == 4'h9) begin w[448 +: 4] <= 4'h0;
