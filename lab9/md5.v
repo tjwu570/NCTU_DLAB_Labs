@@ -56,7 +56,7 @@ reg [511:0] w = {
  reg [ 7 : 0] g;
  reg [ 7 : 0] i;
 
- localparam [2:0] S_INIT = 0, S_LOOP_2 = 1, S_LOOP_2 = 2, S_ADD = 3, S_DONE = 4;
+localparam [2:0] S_INIT = 0, S_LOOP_2 = 1, S_LOOP_2 = 2, S_ADD = 3, S_DONE = 4;
 reg [2:0] S, S_next;
 always @(*) begin
  case (S)
@@ -66,14 +66,16 @@ always @(*) begin
     S_INC:
         S_next <= S_LOOP_1;
     S_LOOP_1:
-        S_next = S_LOOP_2;
+        S_next <= S_LOOP_2;
     S_LOOP_2:
-        if (i<63) S_next = S_INC;
-        else S_next = S_ADD;
+        if (i<63) S_next <= S_LOOP_1;
+        else S_next <= S_ADD;
     S_ADD:
-        S_next = S_DONE;
+        S_next <= S_DONE;
     S_DONE:
-        S_next = S_INIT;
+        S_next <= S_INC;
+    default:
+        S_next <= S_INIT;
  endcase
 end
 
@@ -134,7 +136,6 @@ end
         i <= i + 1;
 
     S_ADD:
-
         a <= a + h0;
         b <= b + h1;
         c <= c + h2;
