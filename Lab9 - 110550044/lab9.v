@@ -1,4 +1,4 @@
-`timescale 1ns/1ps
+`timescale 1ps/1ns
 
 module lab9(
   // General system I/O ports
@@ -30,8 +30,6 @@ debounce btn_db2(
   .btn_output(btn_level)
 );
 
-reg  [127:0] row_A;
-reg  [127:0] row_B;
 LCD_module lcd0(
     .clk(clk), 
     .reset(~reset_n), 
@@ -45,28 +43,6 @@ LCD_module lcd0(
 md5 m0(.clk(clk), .att(att[0]), .hash(hash0), .current_att(ans0));
 md5 m1(.clk(clk), .att(att[1]), .hash(hash1), .current_att(ans1));
 md5 m2(.clk(clk), .att(att[2]), .hash(hash2), .current_att(ans2));
-
-reg  [1:0] P, P_next;
-localparam [1:0] S_MAIN_INIT = 2'b00, S_MAIN_CALC = 2'b01, S_MAIN_SHOW = 2'b10;
-always @(*) begin // FSM next-state logic
-    case (P)
-        S_MAIN_INIT:
-            if (btn_pressed) P_next <= S_MAIN_CALC;
-            else P_next <= S_MAIN_INIT;
-        S_MAIN_CALC:
-            if (found) P_next <= S_MAIN_SHOW;
-            else P_next <= S_MAIN_CALC;
-        S_MAIN_SHOW:
-            if (btn_pressed) P_next <= S_MAIN_INIT;
-            else P_next <= S_MAIN_SHOW;
-        default:
-            P_next <= S_MAIN_INIT;
-    endcase
-end
-always @(posedge clk) begin
-    if (~reset_n) P <= S_MAIN_INIT;
-    else P <= P_next;
-end
 // Check md5 output
 always @(posedge clk) begin
     if (P == S_MAIN_INIT) found <= 0;
@@ -75,15 +51,11 @@ always @(posedge clk) begin
     else if (hash2 == passwd_hash) begin found <= 1; ans_pwd <= ans2; end
 end
 
-// Timer & set starter
+// Timer
 reg [95 : 0] cnt = 0;
 always @(posedge clk) begin
-    if (P == S_MAIN_INIT) begin
+    if (P == S_MAIN_INIT)
         cnt <= "000000000000";
-        att[0] <= "00000000";
-        att[1] <= "33333333";
-        att[2] <= "66666666";
-    end
     else if (P == S_MAIN_CALC) begin
         if (cnt[ 0 +: 4] == 4'h9) begin cnt[ 0 +: 4] <= 4'h0;
         if (cnt[ 8 +: 4] == 4'h9) begin cnt[ 8 +: 4] <= 4'h0;
@@ -113,7 +85,27 @@ always @(posedge clk) begin
 end
 
 
-
+reg  [1:0] P, P_next;
+localparam [1:0] S_MAIN_INIT = 2'b00, S_MAIN_CALC = 2'b01, S_MAIN_SHOW = 2'b10;
+always @(*) begin // FSM next-state logic
+    case (P)
+        S_MAIN_INIT:
+            if (btn_pressed) P_next <= S_MAIN_CALC;
+            else P_next <= S_MAIN_INIT;
+        S_MAIN_CALC:
+            if (found) P_next <= S_MAIN_SHOW;
+            else P_next <= S_MAIN_CALC;
+        S_MAIN_SHOW:
+            if (btn_pressed) P_next <= S_MAIN_INIT;
+            else P_next <= S_MAIN_SHOW;
+        default:
+            P_next <= S_MAIN_INIT;
+    endcase
+end
+always @(posedge clk) begin
+    if (~reset_n) P <= S_MAIN_INIT;
+    else P <= P_next;
+end
 
 
  // LCD Display function.
@@ -125,7 +117,7 @@ end
     row_A <= "Calculating.....";
     row_B <= " ";
  end else if (P == S_MAIN_SHOW) begin
-    row_A <= {"Passwd: ", ans_pwd};
+    row_A <= {"Passwd: ", ans_reg};
     row_B <= {"Time: ", cnt[40 +: 56], " ms"};
  end
  end
