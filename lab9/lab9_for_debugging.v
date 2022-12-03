@@ -67,7 +67,7 @@ always @(posedge clk) begin
     else P <= P_next;
 end
 
-reg [10:0] counter = 0 ;
+reg [10:0] waiter = 0 ;
 // Check md5 output
 always @(posedge clk) begin
     if (P == S_MAIN_INIT) found <= 0;

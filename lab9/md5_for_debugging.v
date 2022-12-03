@@ -1,6 +1,6 @@
 module md5(
     input  clk,
-    input  [63:0]  att,
+    input  reg [63:0]  att,
     output reg [127:0] hash,
     output reg [63:0] current_att 
 );
@@ -160,7 +160,7 @@ always @(posedge clk) begin
     end
     else if (S==S_DONE) begin
         hash <= {a,b,c,d};
-        current_att <= {att[63:0]};
+        current_att <= att;
         i <= 0;
         initialized <= 0;
     end 
