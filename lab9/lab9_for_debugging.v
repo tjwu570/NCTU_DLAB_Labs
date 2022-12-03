@@ -47,7 +47,7 @@ md5 m0(.clk(clk), .att("53589793"), .hash(hash0), .current_att(ans0));
 
 reg  [1:0] P, P_next;
 localparam [1:0] S_MAIN_INIT = 2'b00, S_MAIN_CALC = 2'b01, S_MAIN_SHOW = 2'b10;
-always @(*) begin // FSM next-state logic
+always @(posedge clk) begin // FSM next-state logic
     case (P)
         S_MAIN_INIT:
             if (btn_pressed) P_next <= S_MAIN_CALC;

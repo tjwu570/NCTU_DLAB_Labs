@@ -38,7 +38,7 @@ assign done = (i==63) ? 1 : 0;
 
 localparam [2:0] S_INIT = 0, S_INC = 1, S_LOOP_1 = 2, S_LOOP_2 = 3, S_ADD = 4, S_DONE = 5;
 reg [2:0] S, S_next;
-always @(*) begin
+always @(posedge clk) begin
  case (S)
     S_INIT:
         if (initialized) S_next = S_LOOP_1;
