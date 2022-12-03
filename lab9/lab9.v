@@ -119,7 +119,7 @@ end
     row_A <= "Calculating.....";
     row_B <= " ";
  end else if (P == S_MAIN_SHOW) begin
-    row_A <= {"Passwd: ", ans_reg};
+    row_A <= {"Passwd: ", ans_pwd};
     row_B <= {"Time: ", cnt[40 +: 56], " ms"};
  end
  end
