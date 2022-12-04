@@ -1,23 +1,4 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company:
-// Engineer:
-//
-// Create Date: 2020/12/05 16:44:11
-// Design Name:  Birb
-// Module Name: md5
-// Project Name:
-// Target Devices:
-// Tool Versions:
-// Description:
-//
-// Dependencies:
-//
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-//
-//////////////////////////////////////////////////////////////////////////////////
 module md5(
     input clk,
     input reset,
@@ -79,11 +60,10 @@ assign state =  {1'b1, P};
 assign finished = (idx >= 64);
  
 always @(posedge clk) begin
-  if (reset) output_temp <=0; // read samples at 000 first
+  if (reset) output_temp <=0;
   else output_temp <= {h0+a, h1+b, h2+c, h3+d};
 end
  
-// clear and read input msg
 always @(posedge clk) begin
     if (reset)begin
         cal_start <= 0;
@@ -92,9 +72,8 @@ always @(posedge clk) begin
     else if (input_valid == 1)begin
         msg[0:(8*8)-1] <= {input_num[8*3+:8],input_num[8*2+:8],input_num[8*1+:8],input_num[8*0+:8],
                                         input_num[8*7+:8],input_num[8*6+:8],input_num[8*5+:8],input_num[8*4+:8]};
-                                        // input_num has wired order
         msg[(32*2)+:32] <= 32'd128;
-        msg[(32*14)+:32] <= 32'd64; // i don't know why
+        msg[(32*14)+:32] <= 32'd64;
         cal_start <=1;
     end
     else if (P == S_DONE)begin
@@ -102,7 +81,6 @@ always @(posedge clk) begin
     end
 end
  
-// calculate md5 block F
 always @(posedge clk) begin
     if (reset)begin
         f <=0;
@@ -111,7 +89,7 @@ always @(posedge clk) begin
     else if(P == S_CAL_F && !finished) begin
         shift_amt <= r[(idx*32)+:32];
         if(idx<16)begin
-            f  <= (b & c) | ((~b) & d); //good
+            f  <= (b & c) | ((~b) & d);
             g <= idx;
         end
         else if (idx<32)begin
@@ -149,7 +127,7 @@ always @(posedge clk) begin
     else if(P == S_ADD&& !finished) begin
         d<=c;
         c<=b;
-        b<= b + (   (temp<<shift_amt) | (temp>>(32-shift_amt) )  ); //+ has more priority than or
+        b<= b + (   (temp<<shift_amt) | (temp>>(32-shift_amt) )  );
         a<= d;
         idx <=idx +1;
     end
@@ -161,13 +139,13 @@ end
  
  
 always @(posedge clk) begin
-  if (reset) P <= S_WAIT; // read samples at 000 first
+  if (reset) P <= S_WAIT;
   else P <= P_next;
 end
  
-always @(*) begin // FSM next-state logic
+always @(*) begin
     case (P)
-        S_WAIT: // send an address to the SRAM
+        S_WAIT:
             if(cal_start) P_next = S_CAL_F;
             else P_next = S_WAIT;
         S_CAL_F:

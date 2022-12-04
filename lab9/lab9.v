@@ -1,5 +1,4 @@
 `timescale 1ns / 1ps
-/////////////////////////////////////////////////////////
 module lab9(
   input clk,
   input reset_n,
@@ -13,40 +12,32 @@ module lab9(
  
 localparam [2:0] S_WAIT_BUTTON = 3'b000, S_MD5_RESET = 3'b001,S_MD5_READ_INPUT = 3'b010, S_MD5_CALCULATE= 3'b011,
                  S_MD5_COMPARE = 3'b100, S_SHOW_RESULT = 3'b101;  
-// turn off all the LEDs
  
  
-reg [0:8*16-1]password_hash =128'hef775988943825d2871e1cfa75473ec0;
+reg [0:8*16-1]password_hash = 128'hE8CD0953ABDFDE433DFEC7FAA70DF7F6;
  
-/*
-reg [0:8*16-1]password_hash =
-{
-        8'h82, 8'hCF, 8'h9f, 8'ha6, 8'h47, 8'hDd, 8'h1b, 8'h3f,
-        8'hbd, 8'h9d, 8'he7, 8'h1b, 8'hbf, 8'hb8, 8'h3f, 8'hb2
-};
-*/
-reg [127:0] row_A = "Press BTN to    "; // Initialize the text of the first row.
-reg [127:0] row_B = "crack passwd...."; // Initialize the text of the second row.
  
-reg [127:0] row_A_input; // Initialize the text of the first row.
-reg [127:0] row_B_input; // Initialize the text of the second row.
+reg [127:0] row_A = "Press BTN3 to   ";
+reg [127:0] row_B = "crack passwd....";
+ 
+reg [127:0] row_A_input;
+reg [127:0] row_B_input;
  
 wire [1:0]  btn_level, btn_pressed;
 reg  [1:0]  prev_btn_level;
 reg [2:0] P, P_next;
 wire cal_done;
  
-// md5 IO
 wire reset_md5;
-wire output_valid [0:13];
+wire output_valid [0:32];
 wire input_valid;
-wire [0:128-1] output_hash[0:13];
-wire [3:0] md5_state [0:13];
-reg [0:8*32-1] output_hash_str [0:13];
+wire [0:128-1] output_hash[0:32];
+wire [3:0] md5_state [0:32];
+reg [0:8*32-1] output_hash_str [0:32];
 reg [8*8-1:0] answer_str;
  
-reg [8*8-1:0] test_str [0:13];
-reg [8*8-1:0] prev_test_str [0:13];
+reg [8*8-1:0] test_str [0:32];
+reg [8*8-1:0] prev_test_str [0:32];
 integer cvt_idx;
  
 wire matched;
@@ -76,6 +67,25 @@ md5 md5_10( .clk(clk),  .reset(reset_md5),  .input_num(test_str[10]),  .input_va
 md5 md5_11( .clk(clk),  .reset(reset_md5),  .input_num(test_str[11]),  .input_valid(input_valid),  .output_hash(output_hash[11]),  .output_valid(output_valid[11]),  .state(md5_state[11]));
 md5 md5_12( .clk(clk),  .reset(reset_md5),  .input_num(test_str[12]),  .input_valid(input_valid),  .output_hash(output_hash[12]),  .output_valid(output_valid[12]),  .state(md5_state[12]));
 md5 md5_13( .clk(clk),  .reset(reset_md5),  .input_num(test_str[13]),  .input_valid(input_valid),  .output_hash(output_hash[13]),  .output_valid(output_valid[13]),  .state(md5_state[13]));
+md5 md5_14( .clk(clk),  .reset(reset_md5),  .input_num(test_str[14]),  .input_valid(input_valid),  .output_hash(output_hash[14]),  .output_valid(output_valid[14]),  .state(md5_state[14]));
+md5 md5_15( .clk(clk),  .reset(reset_md5),  .input_num(test_str[15]),  .input_valid(input_valid),  .output_hash(output_hash[15]),  .output_valid(output_valid[15]),  .state(md5_state[15]));
+md5 md5_16( .clk(clk),  .reset(reset_md5),  .input_num(test_str[16]),  .input_valid(input_valid),  .output_hash(output_hash[16]),  .output_valid(output_valid[16]),  .state(md5_state[16]));
+md5 md5_17( .clk(clk),  .reset(reset_md5),  .input_num(test_str[17]),  .input_valid(input_valid),  .output_hash(output_hash[17]),  .output_valid(output_valid[17]),  .state(md5_state[17]));
+md5 md5_18( .clk(clk),  .reset(reset_md5),  .input_num(test_str[18]),  .input_valid(input_valid),  .output_hash(output_hash[18]),  .output_valid(output_valid[18]),  .state(md5_state[18]));
+md5 md5_19( .clk(clk),  .reset(reset_md5),  .input_num(test_str[19]),  .input_valid(input_valid),  .output_hash(output_hash[19]),  .output_valid(output_valid[19]),  .state(md5_state[19]));
+md5 md5_20( .clk(clk),  .reset(reset_md5),  .input_num(test_str[20]),  .input_valid(input_valid),  .output_hash(output_hash[20]),  .output_valid(output_valid[20]),  .state(md5_state[20]));
+md5 md5_21( .clk(clk),  .reset(reset_md5),  .input_num(test_str[21]),  .input_valid(input_valid),  .output_hash(output_hash[21]),  .output_valid(output_valid[21]),  .state(md5_state[21]));
+md5 md5_22( .clk(clk),  .reset(reset_md5),  .input_num(test_str[22]),  .input_valid(input_valid),  .output_hash(output_hash[22]),  .output_valid(output_valid[22]),  .state(md5_state[22]));
+md5 md5_23( .clk(clk),  .reset(reset_md5),  .input_num(test_str[23]),  .input_valid(input_valid),  .output_hash(output_hash[23]),  .output_valid(output_valid[23]),  .state(md5_state[23]));
+md5 md5_24( .clk(clk),  .reset(reset_md5),  .input_num(test_str[24]),  .input_valid(input_valid),  .output_hash(output_hash[24]),  .output_valid(output_valid[24]),  .state(md5_state[24]));
+md5 md5_25( .clk(clk),  .reset(reset_md5),  .input_num(test_str[25]),  .input_valid(input_valid),  .output_hash(output_hash[25]),  .output_valid(output_valid[25]),  .state(md5_state[25]));
+md5 md5_26( .clk(clk),  .reset(reset_md5),  .input_num(test_str[26]),  .input_valid(input_valid),  .output_hash(output_hash[26]),  .output_valid(output_valid[26]),  .state(md5_state[26]));
+md5 md5_27( .clk(clk),  .reset(reset_md5),  .input_num(test_str[27]),  .input_valid(input_valid),  .output_hash(output_hash[27]),  .output_valid(output_valid[27]),  .state(md5_state[27]));
+md5 md5_28( .clk(clk),  .reset(reset_md5),  .input_num(test_str[28]),  .input_valid(input_valid),  .output_hash(output_hash[28]),  .output_valid(output_valid[28]),  .state(md5_state[28]));
+md5 md5_29( .clk(clk),  .reset(reset_md5),  .input_num(test_str[29]),  .input_valid(input_valid),  .output_hash(output_hash[29]),  .output_valid(output_valid[29]),  .state(md5_state[29]));
+md5 md5_30( .clk(clk),  .reset(reset_md5),  .input_num(test_str[30]),  .input_valid(input_valid),  .output_hash(output_hash[30]),  .output_valid(output_valid[30]),  .state(md5_state[30]));
+md5 md5_31( .clk(clk),  .reset(reset_md5),  .input_num(test_str[31]),  .input_valid(input_valid),  .output_hash(output_hash[31]),  .output_valid(output_valid[31]),  .state(md5_state[31]));
+md5 md5_32( .clk(clk),  .reset(reset_md5),  .input_num(test_str[32]),  .input_valid(input_valid),  .output_hash(output_hash[32]),  .output_valid(output_valid[32]),  .state(md5_state[32]));
  
  
 debounce btn_db0(
@@ -86,7 +96,8 @@ debounce btn_db0(
  
 assign reset_md5 = (P == S_MD5_RESET);
 assign input_valid = (P == S_MD5_READ_INPUT);
-assign matched = (((( password_hash == output_hash[0] ) || ( password_hash == output_hash[1] ))  ||  (( password_hash == output_hash[2] ) || ( password_hash == output_hash[3] ))) || ((( password_hash == output_hash[4] ) || ( password_hash == output_hash[5] ))  ||  (( password_hash == output_hash[6] ) || ( password_hash == output_hash[7] )))) || (((( password_hash == output_hash[8] ) || ( password_hash == output_hash[9] ))  ||  (( password_hash == output_hash[10] ) || ( password_hash == output_hash[11] ))) || ((( password_hash == output_hash[12] ) || ( password_hash == output_hash[13] ))  ||  (( password_hash == output_hash[13] ) || ( password_hash == output_hash[13] ))));
+assign matched = (((((( password_hash == output_hash[0] ) || ( password_hash == output_hash[1] ))  ||  (( password_hash == output_hash[2] ) || ( password_hash == output_hash[3] ))) || ((( password_hash == output_hash[4] ) || ( password_hash == output_hash[5] ))  ||  (( password_hash == output_hash[6] ) || ( password_hash == output_hash[7] )))) || (((( password_hash == output_hash[8] ) || ( password_hash == output_hash[9] ))  ||  (( password_hash == output_hash[10] ) || ( password_hash == output_hash[11] ))) || ((( password_hash == output_hash[12] ) || ( password_hash == output_hash[13] ))  ||  (( password_hash == output_hash[14] ) || ( password_hash == output_hash[15] )))) ||
+                 (((( password_hash == output_hash[16] ) || ( password_hash == output_hash[17] ))  ||  (( password_hash == output_hash[18] ) || ( password_hash == output_hash[19] ))) || ((( password_hash == output_hash[20] ) || ( password_hash == output_hash[21] ))  ||  (( password_hash == output_hash[22] ) || ( password_hash == output_hash[23] )))) || (((( password_hash == output_hash[24] ) || ( password_hash == output_hash[25] ))  ||  (( password_hash == output_hash[26] ) || ( password_hash == output_hash[27] ))) || ((( password_hash == output_hash[28] ) || ( password_hash == output_hash[29] ))  ||  (( password_hash == output_hash[30] ) || ( password_hash == output_hash[31] ))))) || (( password_hash == output_hash[32] ) || ( password_hash == output_hash[32] )));
  
 always @(posedge clk) begin
   if (~reset_n)
@@ -132,13 +143,31 @@ always @(posedge clk) begin
                 else if ( password_hash == output_hash[11]) row_A_input <= {"Passwd: ", prev_test_str[11]};
                 else if ( password_hash == output_hash[12]) row_A_input <= {"Passwd: ", prev_test_str[12]};
                 else if ( password_hash == output_hash[13]) row_A_input <= {"Passwd: ", prev_test_str[13]};
+                else if ( password_hash == output_hash[14]) row_A_input <= {"Passwd: ", prev_test_str[14]};
+                else if ( password_hash == output_hash[15]) row_A_input <= {"Passwd: ", prev_test_str[15]};
+                else if ( password_hash == output_hash[16]) row_A_input <= {"Passwd: ", prev_test_str[16]};
+                else if ( password_hash == output_hash[17]) row_A_input <= {"Passwd: ", prev_test_str[17]};
+                else if ( password_hash == output_hash[18]) row_A_input <= {"Passwd: ", prev_test_str[18]};
+                else if ( password_hash == output_hash[19]) row_A_input <= {"Passwd: ", prev_test_str[19]};
+                else if ( password_hash == output_hash[20]) row_A_input <= {"Passwd: ", prev_test_str[20]};
+                else if ( password_hash == output_hash[21]) row_A_input <= {"Passwd: ", prev_test_str[21]};
+                else if ( password_hash == output_hash[22]) row_A_input <= {"Passwd: ", prev_test_str[22]};
+                else if ( password_hash == output_hash[23]) row_A_input <= {"Passwd: ", prev_test_str[23]};
+                else if ( password_hash == output_hash[24]) row_A_input <= {"Passwd: ", prev_test_str[24]};
+                else if ( password_hash == output_hash[25]) row_A_input <= {"Passwd: ", prev_test_str[25]};
+                else if ( password_hash == output_hash[26]) row_A_input <= {"Passwd: ", prev_test_str[26]};
+                else if ( password_hash == output_hash[27]) row_A_input <= {"Passwd: ", prev_test_str[27]};
+                else if ( password_hash == output_hash[28]) row_A_input <= {"Passwd: ", prev_test_str[28]};
+                else if ( password_hash == output_hash[29]) row_A_input <= {"Passwd: ", prev_test_str[29]};
+                else if ( password_hash == output_hash[30]) row_A_input <= {"Passwd: ", prev_test_str[30]};
+                else if ( password_hash == output_hash[31]) row_A_input <= {"Passwd: ", prev_test_str[31]};
+                else if ( password_hash == output_hash[32]) row_A_input <= {"Passwd: ", prev_test_str[32]};
                 row_B_input <= {"Time: ", cnt[40 +: 56], " ms"};
             end
         end
     end
 end
  
-// convert output hash to ASCII hex
 integer i;
 always @(posedge clk) begin
     for (i = 0; i< 32; i = i+1)begin
@@ -156,10 +185,28 @@ always @(posedge clk) begin
         output_hash_str[11][(i*8)+:8] <= ((output_hash[11][(i*4)+:4]>9)? "7" : "0") + output_hash[11][(i*4)+:4];
         output_hash_str[12][(i*8)+:8] <= ((output_hash[12][(i*4)+:4]>9)? "7" : "0") + output_hash[12][(i*4)+:4];
         output_hash_str[13][(i*8)+:8] <= ((output_hash[13][(i*4)+:4]>9)? "7" : "0") + output_hash[13][(i*4)+:4];
+        output_hash_str[14][(i*8)+:8] <= ((output_hash[14][(i*4)+:4]>9)? "7" : "0") + output_hash[14][(i*4)+:4];
+        output_hash_str[15][(i*8)+:8] <= ((output_hash[15][(i*4)+:4]>9)? "7" : "0") + output_hash[15][(i*4)+:4];
+        output_hash_str[16][(i*8)+:8] <= ((output_hash[16][(i*4)+:4]>9)? "7" : "0") + output_hash[16][(i*4)+:4];
+        output_hash_str[17][(i*8)+:8] <= ((output_hash[17][(i*4)+:4]>9)? "7" : "0") + output_hash[17][(i*4)+:4];
+        output_hash_str[18][(i*8)+:8] <= ((output_hash[18][(i*4)+:4]>9)? "7" : "0") + output_hash[18][(i*4)+:4];
+        output_hash_str[19][(i*8)+:8] <= ((output_hash[19][(i*4)+:4]>9)? "7" : "0") + output_hash[19][(i*4)+:4];
+        output_hash_str[20][(i*8)+:8] <= ((output_hash[20][(i*4)+:4]>9)? "7" : "0") + output_hash[20][(i*4)+:4];
+        output_hash_str[21][(i*8)+:8] <= ((output_hash[21][(i*4)+:4]>9)? "7" : "0") + output_hash[21][(i*4)+:4];
+        output_hash_str[22][(i*8)+:8] <= ((output_hash[22][(i*4)+:4]>9)? "7" : "0") + output_hash[22][(i*4)+:4];
+        output_hash_str[23][(i*8)+:8] <= ((output_hash[23][(i*4)+:4]>9)? "7" : "0") + output_hash[23][(i*4)+:4];
+        output_hash_str[24][(i*8)+:8] <= ((output_hash[24][(i*4)+:4]>9)? "7" : "0") + output_hash[24][(i*4)+:4];
+        output_hash_str[25][(i*8)+:8] <= ((output_hash[25][(i*4)+:4]>9)? "7" : "0") + output_hash[25][(i*4)+:4];
+        output_hash_str[26][(i*8)+:8] <= ((output_hash[26][(i*4)+:4]>9)? "7" : "0") + output_hash[26][(i*4)+:4];
+        output_hash_str[27][(i*8)+:8] <= ((output_hash[27][(i*4)+:4]>9)? "7" : "0") + output_hash[27][(i*4)+:4];
+        output_hash_str[28][(i*8)+:8] <= ((output_hash[28][(i*4)+:4]>9)? "7" : "0") + output_hash[28][(i*4)+:4];
+        output_hash_str[29][(i*8)+:8] <= ((output_hash[29][(i*4)+:4]>9)? "7" : "0") + output_hash[29][(i*4)+:4];
+        output_hash_str[30][(i*8)+:8] <= ((output_hash[30][(i*4)+:4]>9)? "7" : "0") + output_hash[30][(i*4)+:4];
+        output_hash_str[31][(i*8)+:8] <= ((output_hash[31][(i*4)+:4]>9)? "7" : "0") + output_hash[31][(i*4)+:4];
+        output_hash_str[32][(i*8)+:8] <= ((output_hash[32][(i*4)+:4]>9)? "7" : "0") + output_hash[32][(i*4)+:4];
     end
 end
  
-// conver dec integer to dec string
 always @(posedge clk) begin
     if ( (P ==S_MD5_RESET) | (P ==S_SHOW_RESULT) ) begin
         if (cvt_idx>100) cvt_idx <=100;
@@ -172,48 +219,85 @@ end
 integer idx_1;
 always @(posedge clk) begin
     if(P==S_SHOW_RESULT && cvt_idx < 8) begin
-        for (idx_1=0; idx_1 <= 13; idx_1 = idx_1 +1) begin
+        for (idx_1=0; idx_1 <= 32; idx_1 = idx_1 +1) begin
             answer_str[idx_1] <= test_str[idx_1];
         end
     end
 end
  
 integer idx;
-// FSM of the main controller
 always @(posedge clk) begin
     if (~reset_n) begin
         test_str[0] <= "00000000";
-        test_str[1] <= "07000000";
-        test_str[2] <= "14000000";
-        test_str[3] <= "21000000";
-        test_str[4] <= "28000000";
-        test_str[5] <= "35000000";
-        test_str[6] <= "42000000";
-        test_str[7] <= "49000000";
-        test_str[8] <= "56000000";
-        test_str[9] <= "63000000";
-        test_str[10] <= "70000000";
-        test_str[11] <= "77000000";
-        test_str[12] <= "84000000";
-        test_str[13] <= "91000000";
+        test_str[1] <= "03000000";
+        test_str[2] <= "06000000";
+        test_str[3] <= "09000000";
+        test_str[4] <= "12000000";
+        test_str[5] <= "15000000";
+        test_str[6] <= "18000000";
+        test_str[7] <= "21000000";
+        test_str[8] <= "24000000";
+        test_str[9] <= "27000000";
+        test_str[10] <= "30000000";
+        test_str[11] <= "33000000";
+        test_str[12] <= "36000000";
+        test_str[13] <= "39000000";
+        test_str[14] <= "42000000";
+        test_str[15] <= "45000000";
+        test_str[16] <= "48000000";
+        test_str[17] <= "51000000";
+        test_str[18] <= "54000000";
+        test_str[19] <= "57000000";
+        test_str[20] <= "60000000";
+        test_str[21] <= "63000000";
+        test_str[22] <= "66000000";
+        test_str[23] <= "69000000";
+        test_str[24] <= "72000000";
+        test_str[25] <= "75000000";
+        test_str[26] <= "78000000";
+        test_str[27] <= "81000000";
+        test_str[28] <= "84000000";
+        test_str[29] <= "87000000";
+        test_str[30] <= "90000000";
+        test_str[31] <= "93000000";
+        test_str[32] <= "96000000";
        
         prev_test_str[0] <= "00000000";
-        prev_test_str[1] <= "07000000";
-        prev_test_str[2] <= "14000000";
-        prev_test_str[3] <= "21000000";
-        prev_test_str[4] <= "28000000";
-        prev_test_str[5] <= "35000000";
-        prev_test_str[6] <= "42000000";
-        prev_test_str[7] <= "49000000";
-        prev_test_str[8] <= "56000000";
-        prev_test_str[9] <= "63000000";
-        prev_test_str[10] <= "70000000";
-        prev_test_str[11] <= "77000000";
-        prev_test_str[12] <= "84000000";
-        prev_test_str[13] <= "91000000";
+        prev_test_str[1] <= "03000000";
+        prev_test_str[2] <= "06000000";
+        prev_test_str[3] <= "09000000";
+        prev_test_str[4] <= "12000000";
+        prev_test_str[5] <= "15000000";
+        prev_test_str[6] <= "18000000";
+        prev_test_str[7] <= "21000000";
+        prev_test_str[8] <= "24000000";
+        prev_test_str[9] <= "27000000";
+        prev_test_str[10] <= "30000000";
+        prev_test_str[11] <= "33000000";
+        prev_test_str[12] <= "36000000";
+        prev_test_str[13] <= "39000000";
+        prev_test_str[14] <= "42000000";
+        prev_test_str[15] <= "45000000";
+        prev_test_str[16] <= "48000000";
+        prev_test_str[17] <= "51000000";
+        prev_test_str[18] <= "54000000";
+        prev_test_str[19] <= "57000000";
+        prev_test_str[20] <= "60000000";
+        prev_test_str[21] <= "63000000";
+        prev_test_str[22] <= "66000000";
+        prev_test_str[23] <= "69000000";
+        prev_test_str[24] <= "72000000";
+        prev_test_str[25] <= "75000000";
+        prev_test_str[26] <= "78000000";
+        prev_test_str[27] <= "81000000";
+        prev_test_str[28] <= "84000000";
+        prev_test_str[29] <= "87000000";
+        prev_test_str[30] <= "90000000";
+        prev_test_str[31] <= "93000000";
+        prev_test_str[32] <= "96000000";
     end
     else if(P == S_MD5_COMPARE) begin
-        for (idx=0; idx<=13; idx=idx+1) begin
+        for (idx=0; idx<=32; idx=idx+1) begin
             if (test_str[idx][ 0 +: 4] == 4'h9) begin test_str[idx][ 0 +: 4] <= 4'h0;
             if (test_str[idx][ 8 +: 4] == 4'h9) begin test_str[idx][ 8 +: 4] <= 4'h0;
             if (test_str[idx][16 +: 4] == 4'h9) begin test_str[idx][16 +: 4] <= 4'h0;
@@ -273,14 +357,13 @@ end
  
  
  
-// FSM of the main controller
 always @(posedge clk) begin
-  if (~reset_n) P <= S_WAIT_BUTTON; // read samples at 000 first
+  if (~reset_n) P <= S_WAIT_BUTTON;
   else P <= P_next;
 end
-always @(*) begin // FSM next-state logic
+always @(*) begin
     case (P)
-        S_WAIT_BUTTON: // send an address to the SRAM
+        S_WAIT_BUTTON:
             if(btn_pressed) P_next = S_MD5_RESET;
             else P_next = S_WAIT_BUTTON;
         S_MD5_RESET:
@@ -291,10 +374,10 @@ always @(*) begin // FSM next-state logic
         S_MD5_CALCULATE:
             if (output_valid[0]) P_next = S_MD5_COMPARE;
             else P_next = S_MD5_CALCULATE;
-        S_MD5_COMPARE: // output data to lcd
+        S_MD5_COMPARE:
             if(matched) P_next = S_SHOW_RESULT;
             else P_next = S_MD5_RESET;
-        S_SHOW_RESULT: // wait for a button click
+        S_SHOW_RESULT:
             if (btn_pressed == 1) P_next = S_WAIT_BUTTON;
             else P_next = S_SHOW_RESULT;
   endcase
@@ -304,7 +387,5 @@ assign usr_led = {(P==S_MD5_RESET), (P==S_MD5_READ_INPUT), (P==S_MD5_CALCULATE),
  
  
 endmodule
- 
-//Issues: parallel,  wrong answer
  
 
