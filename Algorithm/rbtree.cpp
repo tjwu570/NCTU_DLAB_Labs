@@ -1,9 +1,12 @@
 #include <iostream>
 #include <math.h>
+#include <vector>
 using namespace std;
 
 #define BLACK 1
 #define RED 0
+#define _INSERT 1
+#define _DELETE 2
 
 // Red-black tree node
 struct Node
@@ -44,6 +47,9 @@ public:
 
     // Returns the inorder traversal of the tree
     vector<int> inorder() const;
+
+    // Recursive function to print the inorder traversal of a red black tree
+    void inorder(Node *node);
 };
 
 // Left Rotate
@@ -194,9 +200,15 @@ void RedBlackTree::fixViolation(Node *&root, Node *&pt)
 
 // Returns the inorder traversal of the tree
 
+void RedBlackTree::inorder(Node *node)
+{
+    if (node == NULL)
+        return;
 
-
-
+    inorder(node->left);
+    cout << "key: " << node->val << "parent: " << node->parent << "color: " << ((node->color == RED) ? "red" : "black") << endl;
+    inorder(node->right);
+}
 
 // Inserts a new node in the tree
 void RedBlackTree::insert(const int &val)
@@ -272,4 +284,87 @@ void RedBlackTree::remove(const int &val)
         fixViolation(root, child);
 
     delete pt;
+}
+
+int main(int argc, char *argv[])
+{
+    RedBlackTree RB;
+
+    // number of tasks
+    int task_count;
+    cin >> task_count;
+
+    // mode and elements and key
+    int mode, element_count, key;
+
+    // a vector to store input for correct output
+    vector<int> input;
+
+    cin >> task_count;
+    int input_number, iteration;
+
+    for (int i = 0; i < task_count; i++)
+    {
+        // First pushback the `mode` number
+        cin >> input_number;
+        input.push_back(input_number);
+
+        // Then pushback the number of this operation
+        cin >> iteration;
+        input.push_back(iteration);
+
+        // Lastly pushback all the number followd
+        for (int j = 0; j < iteration; j++)
+        {
+            cin >> input_number;
+            input.push_back(input_number);
+        }
+    }
+
+
+    // record which index is used to locate values in `input`
+    int index = 0;
+
+    while (task_count)
+    {
+        mode = input[index];
+        index++;
+
+        if (mode == _INSERT)
+        {
+            element_count = input[index];
+            index++;
+
+            while (element_count)
+            {
+                key = input[index];
+                index++;
+                RB.insert(key);
+                element_count -= 1;
+            }
+        }
+        else if (mode == _DELETE)
+        {
+            element_count = input[index];
+            index++;
+            while (element_count)
+            {
+                key = input[index];
+                index++;
+                RB.remove(key);
+                element_count -= 1;
+            }
+        }
+        else
+        {
+            cerr << "Error: Mode " << mode << "not defined !" << endl;
+            return 1;
+        }
+
+        // printing the output
+        RB.inorder(root);
+
+        task_count -= 1;
+    }
+    return 0;
 }
