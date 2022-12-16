@@ -22,20 +22,17 @@ struct Node
 
 class RBTree
 {
-    private:
-    protected:
-        void rotateLeft(Node *&);
-        void rotateRight(Node *&);
-        void fixInsertRBTree(Node *&);
-        void fixDeleteRBTree(Node *&);
-        int getColor(Node *&);
-        void setColor(Node *&, int);
-        Node *minValueNode(Node *&);
-        Node *maxValueNode(Node *&);
+    public:
+        void  rotateLeft(Node *&);
+        void  rotateRight(Node *&);
+        void  fixInsertRBTree(Node *&);
+        void  fixDeleteRBTree(Node *&);
+        int   getColor(Node *&);
+        void  setColor(Node *&, int);
+        Node* minValueNode(Node *&);
         Node* insertBST(Node *&, Node *&);
         Node* deleteBST(Node *&, int);
-        int getBlackHeight(Node *);
-    public:
+
         Node *root;
         RBTree();
         void insertValue(int);
@@ -43,150 +40,6 @@ class RBTree
         void merge(RBTree);
         void inorder(Node *node);
 };
-
-
-
-// int main() {
-//     int data;
-//     RBTree rbTree1;
-
-//     cin >> data;
-//     while (data != 0)
-//     {
-//         rbTree1.insertValue(data);
-//         cin >> data;
-//     }
-
-//     rbTree1.inorder();
-
-//     return 0;
-// }
-
-
-int main(int argc, char *argv[])
-{
-    RBTree RB;
-
-    // number of tasks
-    int task_count;
-    cin >> task_count;
-
-    // mode and elements and key
-    int mode, element_count, key;
-
-    // a vector to store input for correct output
-    vector<int> input;
-
-    int input_number, iteration;
-
-    for (int i = 0; i < task_count; i++)
-    {
-        // First pushback the `mode` number
-        cin >> input_number;
-        input.push_back(input_number);
-
-        // Then pushback the number of this operation
-        cin >> iteration;
-        input.push_back(iteration);
-
-        // Lastly pushback all the number followd
-        for (int j = 0; j < iteration; j++)
-        {
-            cin >> input_number;
-            input.push_back(input_number);
-        }
-    }
-
-    int index = 0;
-
-
-    while (task_count != 0)
-    {
-        mode = input[index];
-        index++;
-
-
-        if (mode == _INSERT)
-        {
-            element_count = input[index];
-            index++;
-
-            int print_index = index -1;
-            cout << "Insert: ";
-            for(int i=0; i<element_count-1; i++) cout << input[++print_index] << ", ";
-            cout << input[++print_index] << endl;
-            
-            while (element_count)
-            {
-                key = input[index];
-                index++;
-                RB.insertValue(key);
-                element_count -= 1;
-            }
-        }
-        else if (mode == _DELETE)
-        {
-            element_count = input[index];
-            index++;
-
-            int print_index = index -1 ;
-            cout << "Delete: ";
-            for(int i=0; i<element_count-1; i++) cout << input[++print_index] << ", ";
-            cout << input[++print_index] << endl;
-
-            while (element_count)
-            {
-                key = input[index];
-                index++;
-                RB.deleteValue(key);
-                element_count -= 1;
-            }
-        }
-        else
-        {
-            cerr << "Error: Mode " << mode << "not defined !" << endl;
-            return 1;
-        }
-
-        // printing the output
-        RB.inorder(RB.root);
-
-        task_count -= 1;
-    }
-    return 0;
-}
-
-
-
-
-
-//-------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -444,8 +297,6 @@ void RBTree::deleteValue(int data) {
     fixDeleteRBTree(node);
 }
 
-
-
 Node *RBTree::minValueNode(Node *&node) {
 
     Node *ptr = node;
@@ -456,134 +307,112 @@ Node *RBTree::minValueNode(Node *&node) {
     return ptr;
 }
 
-Node* RBTree::maxValueNode(Node *&node) {
-    Node *ptr = node;
-
-    while (ptr->right != nullptr)
-        ptr = ptr->right;
-
-    return ptr;
-}
-
-int RBTree::getBlackHeight(Node *node) {
-    int blackheight = 0;
-    while (node != nullptr) {
-        if (getColor(node) == BLACK)
-            blackheight++;
-        node = node->left;
-    }
-    return blackheight;
-}
-
-// Test case 1 : 5 2 9 1 6 8 0 20 30 35 40 50 0
-// Test case 2 : 3 0 5 0
-// Test case 3 : 2 1 3 0 8 9 4 5 0
-
-void RBTree::merge(RBTree rbTree2) {
-    int temp;
-    Node *c, *temp_ptr;
-    Node *root1 = root;
-    Node *root2 = rbTree2.root;
-    int initialblackheight1 = getBlackHeight(root1);
-    int initialblackheight2 = getBlackHeight(root2);
-    if (initialblackheight1 > initialblackheight2) {
-        c = maxValueNode(root1);
-        temp = c->data;
-        deleteValue(c->data);
-        root1 = root;
-    }
-    else if (initialblackheight2 > initialblackheight1) {
-        c = minValueNode(root2);
-        temp = c->data;
-        rbTree2.deleteValue(c->data);
-        root2 = rbTree2.root;
-    }
-    else {
-        c = minValueNode(root2);
-        temp = c->data;
-        rbTree2.deleteValue(c->data);
-        root2 = rbTree2.root;
-        if (initialblackheight1 != getBlackHeight(root2)) {
-            rbTree2.insertValue(c->data);
-            root2 = rbTree2.root;
-            c = maxValueNode(root1);
-            temp = c->data;
-            deleteValue(c->data);
-            root1 = root;
-        }
-    }
-    setColor(c,RED);
-    int finalblackheight1 = getBlackHeight(root1);
-    int finalblackheight2 = getBlackHeight(root2);
-    if (finalblackheight1 == finalblackheight2) {
-        c->left = root1;
-        root1->parent = c;
-        c->right = root2;
-        root2->parent = c;
-        setColor(c,BLACK);
-        c->data = temp;
-        root = c;
-    }
-    else if (finalblackheight2 > finalblackheight1) {
-        Node *ptr = root2;
-        while (finalblackheight1 != getBlackHeight(ptr)) {
-            temp_ptr = ptr;
-            ptr = ptr->left;
-        }
-        Node *ptr_parent;
-        if (ptr == nullptr)
-            ptr_parent = temp_ptr;
-        else
-            ptr_parent = ptr->parent;
-        c->left = root1;
-        if (root1 != nullptr)
-            root1->parent = c;
-        c->right = ptr;
-        if (ptr != nullptr)
-            ptr->parent = c;
-        ptr_parent->left = c;
-        c->parent = ptr_parent;
-        if (getColor(ptr_parent) == RED) {
-            fixInsertRBTree(c);
-        }
-        else if (getColor(ptr) == RED){
-            fixInsertRBTree(ptr);
-        }
-        c->data = temp;
-        root = root2;
-    }
-    else {
-        Node *ptr = root1;
-        while (finalblackheight2 != getBlackHeight(ptr)) {
-            ptr = ptr->right;
-        }
-        Node *ptr_parent = ptr->parent;
-        c->right = root2;
-        root2->parent = c;
-        c->left = ptr;
-        ptr->parent = c;
-        ptr_parent->right = c;
-        c->parent = ptr_parent;
-        if (getColor(ptr_parent) == RED) {
-            fixInsertRBTree(c);
-        }
-        else if (getColor(ptr) == RED) {
-            fixInsertRBTree(ptr);
-        }
-        c->data = temp;
-        root = root1;
-    }
-    return;
-}
 
 void RBTree::inorder(Node *node) {
+
     if (node == NULL)
         return;
-
     inorder(node->left);
     if (node->parent != nullptr)
     cout << "key: " << node->data << " parent: " << node->parent->data << " color: " << ((node->color == RED) ? "red" : "black") << endl;
     else 
     cout << "key: " << node->data << " parent:  "  << " color: " << ((node->color == RED) ? "red" : "black") << endl;
     inorder(node->right);
+
+}
+
+
+
+
+int main(int argc, char *argv[])
+{
+    RBTree RB;
+
+    // number of tasks
+    int task_count;
+    cin >> task_count;
+
+    // mode and elements and key
+    int mode, element_count, key;
+
+    // a vector to store input for correct output
+    vector<int> input;
+
+    int input_number, iteration;
+
+    for (int i = 0; i < task_count; i++)
+    {
+        // First pushback the `mode` number
+        cin >> input_number;
+        input.push_back(input_number);
+
+        // Then pushback the number of this operation
+        cin >> iteration;
+        input.push_back(iteration);
+
+        // Lastly pushback all the number followd
+        for (int j = 0; j < iteration; j++)
+        {
+            cin >> input_number;
+            input.push_back(input_number);
+        }
+    }
+
+    int index = 0;
+
+
+    while (task_count != 0)
+    {
+        mode = input[index];
+        index++;
+
+
+        if (mode == _INSERT)
+        {
+            element_count = input[index];
+            index++;
+
+            int print_index = index -1;
+            cout << "Insert: ";
+            for(int i=0; i<element_count-1; i++) cout << input[++print_index] << ", ";
+            cout << input[++print_index] << endl;
+            
+            while (element_count)
+            {
+                key = input[index];
+                index++;
+                RB.insertValue(key);
+                element_count -= 1;
+            }
+        }
+        else if (mode == _DELETE)
+        {
+            element_count = input[index];
+            index++;
+
+            int print_index = index -1 ;
+            cout << "Delete: ";
+            for(int i=0; i<element_count-1; i++) cout << input[++print_index] << ", ";
+            cout << input[++print_index] << endl;
+
+            while (element_count)
+            {
+                key = input[index];
+                index++;
+                RB.deleteValue(key);
+                element_count -= 1;
+            }
+        }
+        else
+        {
+            cerr << "Error: Mode " << mode << "not defined !" << endl;
+            return 1;
+        }
+
+        // printing the output
+        RB.inorder(RB.root);
+
+        task_count -= 1;
+    }
+    return 0;
 }
