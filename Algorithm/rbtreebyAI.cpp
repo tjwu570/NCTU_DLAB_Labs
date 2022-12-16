@@ -44,9 +44,6 @@ public:
     // Deletes a node from the tree
     void remove(const int &);
 
-    // Returns the inorder traversal of the tree
-    vector<int> inorder() const;
-
     // Recursive function to print the inorder traversal of a red black tree
     void inorder(Node *node);
 };
@@ -205,7 +202,10 @@ void RedBlackTree::inorder(Node *node)
         return;
 
     inorder(node->left);
-    cout << "key: " << node->val << "parent: " << node->parent << "color: " << ((node->color == RED) ? "red" : "black") << endl;
+    if (node->parent != nullptr)
+    cout << "key: " << node->val << " parent: " << node->parent->val << " color: " << ((node->color == RED) ? "red" : "black") << endl;
+    else 
+    cout << "key: " << node->val << " parent:  "  << " color: " << ((node->color == RED) ? "red" : "black") << endl;
     inorder(node->right);
 }
 
@@ -319,28 +319,16 @@ int main(int argc, char *argv[])
         }
     }
 
-
-    // record which index is used to locate values in input
-
-    cout << "eee 1";
-
-
-    for (int i=0; i<input.size()-1; i++){
-        cout << input[i] << endl;
-    } 
-
-
-    cout << "eee2";
-
-
     int index = 0;
 
-    while (task_count)
+    cout << "check_1\n";
+
+    while (task_count != 0)
     {
         mode = input[index];
         index++;
 
-        cout << "breakpoint 2";
+        cout << "check_2\n";
 
         if (mode == _INSERT)
         {
@@ -349,14 +337,11 @@ int main(int argc, char *argv[])
 
             int print_index = index;
             cout << "Insert: ";
-            for(int i=0; i<element_count; i++) cout << input[print_index] << ", ";
-
-
-            cout << "breakpoint 3";
+            for(int i=0; i<element_count-1; i++) cout << input[print_index] << ", ";
+            cout << input[++print_index] << endl;
             
             while (element_count)
             {
-                cout << "breakpoint 4";
                 key = input[index];
                 index++;
                 RB.insert(key);
