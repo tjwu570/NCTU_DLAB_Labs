@@ -12,7 +12,7 @@ struct Node
 {
     int data;
     bool color;
-    Node *left, *right, *parent;
+    Node *left, *right, *mother;
 
     //Constructor
     Node(int data){
@@ -20,30 +20,29 @@ struct Node
         color = RED;
         left = nullptr;
         right = nullptr;
-        parent = nullptr;
+        mother = nullptr;
     };
 };
 
 class RBTree
 {
 public:
-        void  left_rotate(Node *ptr);
-        void  right_rotate(Node *ptr);
-
-        Node* find_min(Node *node);
+        void insert(int);
+        void deleteValue(int);
         Node* BST_insert(Node *root, Node *ptr);
         Node* BST_delete(Node *root, int data);
 
-        //Constructor
-        RBTree() {root = nullptr;};
-
-        void insert(int);
-        void deleteValue(int);
+        void  left_rotate(Node *ptr);
+        void  right_rotate(Node *ptr);
 
         //Printing the output 
         void inorder(Node *node);
+        Node* find_min(Node *node);
 
         Node *root;
+
+        //Constructor
+        RBTree() {root = nullptr;};
 };
 
 
@@ -53,44 +52,44 @@ void RBTree::insert(int n) {
     root = BST_insert(root, node);
 
     // Fixing violation after inserting
-    Node *parent = nullptr;
+    Node *mother = nullptr;
     Node *grandma = nullptr;
-    while ((node != root && node->color == RED ) && ( node->parent != nullptr && node->parent->color == RED) ){
-        parent = node->parent;
-        grandma = parent->parent;
-        if (parent == grandma->left) {
+    while ((node != root && node->color == RED ) && ( node->mother != nullptr && node->mother->color == RED) ){
+        mother = node->mother;
+        grandma = mother->mother;
+        if (mother == grandma->left) {
             Node *aunt = grandma->right;
             if (aunt != nullptr && aunt->color == RED) {
                 aunt->color = BLACK;
-                if (parent != nullptr) parent->color = BLACK;
+                if (mother != nullptr) mother->color = BLACK;
                 if (grandma != nullptr) grandma->color = RED;
                 node = grandma;
             } else {
-                if (node == parent->right) {
-                    left_rotate(parent);
-                    node = parent;
-                    parent = node->parent;
+                if (node == mother->right) {
+                    left_rotate(mother);
+                    node = mother;
+                    mother = node->mother;
                 }
                 right_rotate(grandma);
-                swap(parent->color, grandma->color);
-                node = parent;
+                swap(mother->color, grandma->color);
+                node = mother;
             }
         } else {
             Node *aunt = grandma->left;
             if (aunt != nullptr && aunt->color == RED) {
                 aunt->color = BLACK;
-                if (parent != nullptr) parent->color = BLACK;
+                if (mother != nullptr) mother->color = BLACK;
                 if (grandma != nullptr) grandma->color = RED;
                 node = grandma;
             } else {
-                if (node == parent->left) {
-                    right_rotate(parent);
-                    node = parent;
-                    parent = node->parent;
+                if (node == mother->left) {
+                    right_rotate(mother);
+                    node = mother;
+                    mother = node->mother;
                 }
                 left_rotate(grandma);
-                swap(parent->color, grandma->color);
-                node = parent;
+                swap(mother->color, grandma->color);
+                node = mother;
             }
         }
     }
@@ -105,10 +104,10 @@ Node* RBTree::BST_insert(Node *root, Node *ptr) {
 
     if (ptr->data < root->data) {
         root->left = BST_insert(root->left, ptr);
-        root->left->parent = root;
+        root->left->mother = root;
     } else if (ptr->data > root->data) {
         root->right = BST_insert(root->right, ptr);
-        root->right->parent = root;
+        root->right->mother = root;
     }
     return root;
 }
@@ -129,87 +128,87 @@ void RBTree::deleteValue(int data) {
     if (node->color == RED || (node->left!=nullptr && node->left->color == RED) || (node->right!=nullptr && node->right->color == RED)) {
         Node *child = node->left != nullptr ? node->left : node->right;
 
-        if (node == node->parent->left) {
-            node->parent->left = child;
+        if (node == node->mother->left) {
+            node->mother->left = child;
             if (child != nullptr){
-                child->parent = node->parent;
+                child->mother = node->mother;
                 child->color = BLACK;
             }
             delete (node);
         } else {
-            node->parent->right = child;
+            node->mother->right = child;
             if (child != nullptr){
-                child->parent = node->parent;
+                child->mother = node->mother;
                 child->color = BLACK;
             }
             delete (node);
         }
     } else {
         Node *sister = nullptr;
-        Node *parent = nullptr;
+        Node *mother = nullptr;
         Node *ptr = node;
         ptr->color = BLACK;
         while (ptr != root && ptr->color == BLACK) {
-            parent = ptr->parent;
-            if (ptr == parent->left) {
-                sister = parent->right;
+            mother = ptr->mother;
+            if (ptr == mother->left) {
+                sister = mother->right;
                 if (sister!=nullptr && sister == RED) {
                     sister->color = BLACK;
-                    parent->color = RED;
-                    left_rotate(parent);
+                    mother->color = RED;
+                    left_rotate(mother);
                 } else {
                     if ( (sister->left != nullptr && sister->left->color == BLACK ) && (sister->right != nullptr && sister->right->color == BLACK )) {
                         sister->color = RED;
-                        parent->color = BLACK;
-                        ptr = parent;
+                        mother->color = BLACK;
+                        ptr = mother;
                     } else {
                         if (sister->right != nullptr && sister->right->color == BLACK ) {
                             if (sister->left != nullptr) sister->left->color = BLACK;
                             sister->color = RED;
                             right_rotate(sister);
-                            sister = parent->right;
+                            sister = mother->right;
                         }
-                        if (sister != nullptr) sister->color = parent->color;
-                        parent->color = BLACK;
+                        if (sister != nullptr) sister->color = mother->color;
+                        mother->color = BLACK;
                         if (sister->right != nullptr) sister->right->color = BLACK;
-                        left_rotate(parent);
+                        left_rotate(mother);
                         break;
                     }
                 }
             } else {
-                sister = parent->left;
+                sister = mother->left;
                 if (sister!=nullptr && sister == RED) {
                     sister->color = BLACK;
-                    parent->color = RED;
-                    right_rotate(parent);
+                    mother->color = RED;
+                    right_rotate(mother);
                     //***check***//
                 } else {
 
                     if ( (sister->left != nullptr && sister->left->color == BLACK ) && (sister->right != nullptr && sister->right->color == BLACK )) {
                         sister->color = RED;
-                        parent->color = BLACK;
-                        ptr = parent;
+                        mother->color = BLACK;
+                        ptr = mother;
                     } else {
                         if (sister->left != nullptr && sister->left->color == BLACK ) {
                             if (sister->right != nullptr) sister->right->color = BLACK;
                             sister->color = RED;
                             left_rotate(sister);
-                            sister = parent->left;
+                            sister = mother->left;
                         }
 
-                        if (sister != nullptr) sister->color = parent->color;
-                        parent->color = BLACK;
+                        if (sister != nullptr) sister->color = mother->color;
+                        mother->color = BLACK;
                         if (sister->left != nullptr) sister->left->color = BLACK;
-                        right_rotate(parent);
+                        right_rotate(mother);
                         break;
                     }
                 }
             }
         }
-        if (node == node->parent->left)
-            node->parent->left = nullptr;
+        if (node == node->mother->left)
+            node->mother->left = nullptr;
         else
-            node->parent->right = nullptr;
+            node->mother->right = nullptr;
         delete(node);
         if (root!=nullptr) root->color = BLACK;
     }
@@ -235,27 +234,24 @@ Node* RBTree::BST_delete(Node *root, int data) {
 }
 
 
-
-
-
 void RBTree::left_rotate(Node *ptr) {
     Node *right_child = ptr->right;
     ptr->right = right_child->left;
 
     if (ptr->right != nullptr)
-        ptr->right->parent = ptr;
+        ptr->right->mother = ptr;
 
-    right_child->parent = ptr->parent;
+    right_child->mother = ptr->mother;
 
-    if (ptr->parent == nullptr)
+    if (ptr->mother == nullptr)
         root = right_child;
-    else if (ptr == ptr->parent->left)
-        ptr->parent->left = right_child;
+    else if (ptr == ptr->mother->left)
+        ptr->mother->left = right_child;
     else
-        ptr->parent->right = right_child;
+        ptr->mother->right = right_child;
 
     right_child->left = ptr;
-    ptr->parent = right_child;
+    ptr->mother = right_child;
 }
 
 void RBTree::right_rotate(Node *ptr) {
@@ -263,19 +259,19 @@ void RBTree::right_rotate(Node *ptr) {
     ptr->left = left_child->right;
 
     if (ptr->left != nullptr)
-        ptr->left->parent = ptr;
+        ptr->left->mother = ptr;
 
-    left_child->parent = ptr->parent;
+    left_child->mother = ptr->mother;
 
-    if (ptr->parent == nullptr)
+    if (ptr->mother == nullptr)
         root = left_child;
-    else if (ptr == ptr->parent->left)
-        ptr->parent->left = left_child;
+    else if (ptr == ptr->mother->left)
+        ptr->mother->left = left_child;
     else
-        ptr->parent->right = left_child;
+        ptr->mother->right = left_child;
 
     left_child->right = ptr;
-    ptr->parent = left_child;
+    ptr->mother = left_child;
 }
 
 
@@ -295,15 +291,13 @@ void RBTree::inorder(Node *node) {
     if (node == NULL)
         return;
     inorder(node->left);
-    if (node->parent != nullptr)
-    cout << "key: " << node->data << " parent: " << node->parent->data << " color: " << ((node->color == RED) ? "red" : "black") << endl;
+    if (node->mother != nullptr)
+    cout << "key: " << node->data << " parent: " << node->mother->data << " color: " << ((node->color == RED) ? "red" : "black") << endl;
     else 
     cout << "key: " << node->data << " parent:  "  << " color: " << ((node->color == RED) ? "red" : "black") << endl;
     inorder(node->right);
 
 }
-
-
 
 
 int main(int argc, char *argv[])
