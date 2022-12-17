@@ -1,12 +1,9 @@
-// Driver Program for Red Black Tree
-
-// #include "0_RBTree.h"
 #include <iostream>
 #include <vector>
 using namespace std;
 
- 
-enum Color{RED, BLACK, DOUBLE_BLACK};
+#define RED 0
+#define BLACK 1
 
 #define _INSERT 1
 #define _DELETE 2
@@ -14,31 +11,33 @@ enum Color{RED, BLACK, DOUBLE_BLACK};
 struct Node
 {
     int data;
-    int color;
+    bool color;
     Node *left, *right, *parent;
-
-    explicit Node(int);
+    Node(int);
 };
 
 class RBTree
 {
     public:
-        void  rotateLeft(Node *&);
-        void  rotateRight(Node *&);
-        void  fixInsertRBTree(Node *&);
-        void  fixDeleteRBTree(Node *&);
-        int   getColor(Node *&);
-        void  setColor(Node *&, int);
+        void  left_rotate(Node *&);
+        void  right_rotate(Node *&);
+        void  fix_after_insert(Node *&);
+        void  fix_after_delete(Node *&);
+
         Node* minValueNode(Node *&);
-        Node* insertBST(Node *&, Node *&);
+        Node* insertBST(Node *root, Node *ptr);
         Node* deleteBST(Node *&, int);
 
-        Node *root;
+        //Constructor
         RBTree();
-        void insertValue(int);
+
+        void insert(int);
         void deleteValue(int);
-        void merge(RBTree);
+
+        //Printing the output 
         void inorder(Node *node);
+
+        Node *root;
 };
 
 
@@ -55,21 +54,12 @@ RBTree::RBTree() {
     root = nullptr;
 }
 
-int RBTree::getColor(Node *&node) {
-    if (node == nullptr)
-        return BLACK;
-
-    return node->color;
+void RBTree::insert(int n) {
+    Node *node = new Node(n);
+    root = insertBST(root, node);
+    fix_after_insert(node);
 }
-
-void RBTree::setColor(Node *&node, int color) {
-    if (node == nullptr)
-        return;
-
-    node->color = color;
-}
-
-Node* RBTree::insertBST(Node *&root, Node *&ptr) {
+Node* RBTree::insertBST(Node *root, Node *ptr) {
     if (root == nullptr)
         return ptr;
 
@@ -84,13 +74,9 @@ Node* RBTree::insertBST(Node *&root, Node *&ptr) {
     return root;
 }
 
-void RBTree::insertValue(int n) {
-    Node *node = new Node(n);
-    root = insertBST(root, node);
-    fixInsertRBTree(node);
-}
 
-void RBTree::rotateLeft(Node *&ptr) {
+
+void RBTree::left_rotate(Node *&ptr) {
     Node *right_child = ptr->right;
     ptr->right = right_child->left;
 
@@ -110,7 +96,7 @@ void RBTree::rotateLeft(Node *&ptr) {
     ptr->parent = right_child;
 }
 
-void RBTree::rotateRight(Node *&ptr) {
+void RBTree::right_rotate(Node *&ptr) {
     Node *left_child = ptr->left;
     ptr->left = left_child->right;
 
@@ -130,52 +116,52 @@ void RBTree::rotateRight(Node *&ptr) {
     ptr->parent = left_child;
 }
 
-void RBTree::fixInsertRBTree(Node *&ptr) {
+void RBTree::fix_after_insert(Node *&ptr) {
     Node *parent = nullptr;
     Node *grandparent = nullptr;
-    while (ptr != root && getColor(ptr) == RED && getColor(ptr->parent) == RED) {
+    while ((ptr != root && ptr->color == RED ) && ( ptr->parent != nullptr && ptr->parent->color == RED) ){
         parent = ptr->parent;
         grandparent = parent->parent;
         if (parent == grandparent->left) {
             Node *uncle = grandparent->right;
-            if (getColor(uncle) == RED) {
-                setColor(uncle, BLACK);
-                setColor(parent, BLACK);
-                setColor(grandparent, RED);
+            if (uncle != nullptr && uncle->color == RED) {
+                uncle->color = BLACK;
+                if (parent != nullptr) parent->color = BLACK;
+                if (grandparent != nullptr) grandparent->color = RED;
                 ptr = grandparent;
             } else {
                 if (ptr == parent->right) {
-                    rotateLeft(parent);
+                    left_rotate(parent);
                     ptr = parent;
                     parent = ptr->parent;
                 }
-                rotateRight(grandparent);
+                right_rotate(grandparent);
                 swap(parent->color, grandparent->color);
                 ptr = parent;
             }
         } else {
             Node *uncle = grandparent->left;
-            if (getColor(uncle) == RED) {
-                setColor(uncle, BLACK);
-                setColor(parent, BLACK);
-                setColor(grandparent, RED);
+            if (uncle != nullptr && uncle->color == RED) {
+                uncle->color = BLACK;
+                if (parent != nullptr) parent->color = BLACK;
+                if (grandparent != nullptr) grandparent->color = RED;
                 ptr = grandparent;
             } else {
                 if (ptr == parent->left) {
-                    rotateRight(parent);
+                    right_rotate(parent);
                     ptr = parent;
                     parent = ptr->parent;
                 }
-                rotateLeft(grandparent);
+                left_rotate(grandparent);
                 swap(parent->color, grandparent->color);
                 ptr = parent;
             }
         }
     }
-    setColor(root, BLACK);
+    if (root!= nullptr) root->color = BLACK;
 }
 
-void RBTree::fixDeleteRBTree(Node *&node) {
+void RBTree::fix_after_delete(Node *&node) {
     if (node == nullptr)
         return;
 
@@ -184,82 +170,81 @@ void RBTree::fixDeleteRBTree(Node *&node) {
         return;
     }
 
-    if (getColor(node) == RED || getColor(node->left) == RED || getColor(node->right) == RED) {
+    if (node->color == RED || (node->left!=nullptr && node->left->color == RED) || (node->right!=nullptr && node->right->color == RED)) {
         Node *child = node->left != nullptr ? node->left : node->right;
 
         if (node == node->parent->left) {
             node->parent->left = child;
-            if (child != nullptr)
+            if (child != nullptr){
                 child->parent = node->parent;
-            setColor(child, BLACK);
+                child->color = BLACK;
+            }
             delete (node);
         } else {
             node->parent->right = child;
-            if (child != nullptr)
+            if (child != nullptr){
                 child->parent = node->parent;
-            setColor(child, BLACK);
+                child->color = BLACK;
+            }
             delete (node);
         }
     } else {
         Node *sibling = nullptr;
         Node *parent = nullptr;
         Node *ptr = node;
-        setColor(ptr, DOUBLE_BLACK);
-        while (ptr != root && getColor(ptr) == DOUBLE_BLACK) {
+        ptr->color = BLACK;
+        while (ptr != root && ptr->color == BLACK) {
             parent = ptr->parent;
             if (ptr == parent->left) {
                 sibling = parent->right;
-                if (getColor(sibling) == RED) {
-                    setColor(sibling, BLACK);
-                    setColor(parent, RED);
-                    rotateLeft(parent);
+                if (sibling!=nullptr && sibling == RED) {
+                    sibling->color = BLACK;
+                    parent->color = RED;
+                    left_rotate(parent);
                 } else {
-                    if (getColor(sibling->left) == BLACK && getColor(sibling->right) == BLACK) {
-                        setColor(sibling, RED);
-                        if(getColor(parent) == RED)
-                            setColor(parent, BLACK);
-                        else
-                            setColor(parent, DOUBLE_BLACK);
+                    if ( (sibling->left != nullptr && sibling->left->color == BLACK ) && (sibling->right != nullptr && sibling->right->color == BLACK )) {
+                        sibling->color = RED;
+                        parent->color = BLACK;
                         ptr = parent;
                     } else {
-                        if (getColor(sibling->right) == BLACK) {
-                            setColor(sibling->left, BLACK);
-                            setColor(sibling, RED);
-                            rotateRight(sibling);
+                        if (sibling->right != nullptr && sibling->right->color == BLACK ) {
+                            if (sibling->left != nullptr) sibling->left->color = BLACK;
+                            sibling->color = RED;
+                            right_rotate(sibling);
                             sibling = parent->right;
                         }
-                        setColor(sibling, parent->color);
-                        setColor(parent, BLACK);
-                        setColor(sibling->right, BLACK);
-                        rotateLeft(parent);
+                        if (sibling != nullptr) sibling->color = parent->color;
+                        parent->color = BLACK;
+                        if (sibling->right != nullptr) sibling->right->color = BLACK;
+                        left_rotate(parent);
                         break;
                     }
                 }
             } else {
                 sibling = parent->left;
-                if (getColor(sibling) == RED) {
-                    setColor(sibling, BLACK);
-                    setColor(parent, RED);
-                    rotateRight(parent);
+                if (sibling!=nullptr && sibling == RED) {
+                    sibling->color = BLACK;
+                    parent->color = RED;
+                    right_rotate(parent);
+                    //***check***//
                 } else {
-                    if (getColor(sibling->left) == BLACK && getColor(sibling->right) == BLACK) {
-                        setColor(sibling, RED);
-                        if (getColor(parent) == RED)
-                            setColor(parent, BLACK);
-                        else
-                            setColor(parent, DOUBLE_BLACK);
+
+                    if ( (sibling->left != nullptr && sibling->left->color == BLACK ) && (sibling->right != nullptr && sibling->right->color == BLACK )) {
+                        sibling->color = RED;
+                        parent->color = BLACK;
                         ptr = parent;
                     } else {
-                        if (getColor(sibling->left) == BLACK) {
-                            setColor(sibling->right, BLACK);
-                            setColor(sibling, RED);
-                            rotateLeft(sibling);
+                        if (sibling->left != nullptr && sibling->left->color == BLACK ) {
+                            if (sibling->right != nullptr) sibling->right->color = BLACK;
+                            sibling->color = RED;
+                            left_rotate(sibling);
                             sibling = parent->left;
                         }
-                        setColor(sibling, parent->color);
-                        setColor(parent, BLACK);
-                        setColor(sibling->left, BLACK);
-                        rotateRight(parent);
+
+                        if (sibling != nullptr) sibling->color = parent->color;
+                        parent->color = BLACK;
+                        if (sibling->left != nullptr) sibling->left->color = BLACK;
+                        right_rotate(parent);
                         break;
                     }
                 }
@@ -270,7 +255,7 @@ void RBTree::fixDeleteRBTree(Node *&node) {
         else
             node->parent->right = nullptr;
         delete(node);
-        setColor(root, BLACK);
+        if (root!=nullptr) root->color = BLACK;
     }
 }
 
@@ -294,7 +279,7 @@ Node* RBTree::deleteBST(Node *&root, int data) {
 
 void RBTree::deleteValue(int data) {
     Node *node = deleteBST(root, data);
-    fixDeleteRBTree(node);
+    fix_after_delete(node);
 }
 
 Node *RBTree::minValueNode(Node *&node) {
@@ -381,7 +366,7 @@ int main(int argc, char *argv[])
             {
                 key = input[index];
                 index++;
-                RB.insertValue(key);
+                RB.insert(key);
                 element_count -= 1;
             }
         }
